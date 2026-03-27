@@ -4,7 +4,7 @@ import { compile } from 'tailwindcss'
 // @ts-expect-error — virtual module resolved at build time via Nitro alias
 import { tailwindCss } from '#sidebase-pdf/tailwind'
 
-function extractClasses(dom: CheerioAPI): string[] {
+export function extractClasses(dom: CheerioAPI): string[] {
   const classes = new Set<string>()
 
   dom('[class]').each((_, element) => {
@@ -21,7 +21,7 @@ function extractClasses(dom: CheerioAPI): string[] {
   return [...classes]
 }
 
-function extractCustomStyles(dom: CheerioAPI): string {
+export function extractCustomStyles(dom: CheerioAPI): string {
   let styles = ''
 
   dom('.custom-style').each((_, element) => {

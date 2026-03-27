@@ -77,6 +77,10 @@ async function render<P extends Record<string, unknown>>(
   }
 }
 
+/**
+ * Render a Vue component to PDF and send as HTTP response.
+ * Returns the PDF buffer — H3 uses the return value as the response body.
+ */
 async function sendPDF<P extends Record<string, unknown>>(
   event: H3Event,
   component: Component,
