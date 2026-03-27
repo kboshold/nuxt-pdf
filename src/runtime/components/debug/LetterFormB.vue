@@ -19,8 +19,8 @@ const props = withDefaults(defineProps<{
     <text :x="`${props.marginLeft - 25}mm`" :y="`${props.marginTop - 20 - 1}mm`" font-size="3mm" fill="#ca8a04" font-weight="bold">Letter Head (45mm)</text>
 
     <!-- Logo Area (70x30mm) -->
-    <rect :x="`${210 - props.marginRight - 70 + (props.marginRight - 10)}mm`" :y="`${props.marginTop - 20 + 45 - 30}mm`" width="70mm" height="30mm" fill="rgba(255, 237, 213, 0.3)" stroke="#f97316" stroke-width="1" />
-    <text :x="`${210 - props.marginRight - 70 + (props.marginRight - 10)}mm`" :y="`${props.marginTop - 20 + 45 - 30 - 1}mm`" font-size="3mm" fill="#ea580c" font-weight="bold">Logo (70x30mm)</text>
+    <rect :x="`${210 - props.marginRight - 75 + (props.marginRight - 10)}mm`" :y="`${props.marginTop - 20 + 45 - 30}mm`" width="75mm" height="30mm" fill="rgba(255, 237, 213, 0.3)" stroke="#f97316" stroke-width="1" />
+    <text :x="`${210 - props.marginRight - 75 + (props.marginRight - 10)}mm`" :y="`${props.marginTop - 20 + 45 - 30 - 1}mm`" font-size="3mm" fill="#ea580c" font-weight="bold">Logo (75x30mm)</text>
 
     <!-- Recipient Container (85x45mm) -->
     <rect :x="`${props.marginLeft}mm`" :y="`${props.marginTop + 25}mm`" width="85mm" height="45mm" fill="rgba(219, 234, 254, 0.2)" stroke="#3b82f6" stroke-width="1" stroke-dasharray="2,2" />
