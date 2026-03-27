@@ -3,6 +3,8 @@ export type { ASize, AnySize, DebugMode, MarkerMode, PDFWrapperProps } from './c
 export { PDFError } from './errors'
 export type { PDFErrorCode } from './errors'
 export { default as PDFWrapper } from './components/PDFWrapper.vue'
+export { default as LetterA } from './components/base/LetterA.vue'
+export { default as LetterB } from './components/base/LetterB.vue'
 export { default as Image } from './components/utils/Image.vue'
 export { default as Footer } from './components/utils/Footer.vue'
 export { default as FoldMarksA } from './components/utils/FoldMarksA.vue'
