@@ -3,3 +3,4 @@ export type { ASize, AnySize, DebugMode, MarkerMode, PDFWrapperProps } from './c
 export { PDFError } from './errors'
 export type { PDFErrorCode } from './errors'
 export { default as PDFWrapper } from './components/PDFWrapper.vue'
+export { default as Image } from './components/utils/Image.vue'
