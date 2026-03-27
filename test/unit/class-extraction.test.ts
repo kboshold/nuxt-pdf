@@ -43,6 +43,24 @@ describe('extractClasses', () => {
     expect(classes).toContain('gap-4')
     expect(classes).toHaveLength(2)
   })
+
+  it('extracts arbitrary value classes like w-[55mm]', () => {
+    const dom = cheerio.load('<div class="w-[55mm] h-[20mm] top-[5mm]">test</div>')
+    const classes = extractClasses(dom)
+    expect(classes).toContain('w-[55mm]')
+    expect(classes).toContain('h-[20mm]')
+    expect(classes).toContain('top-[5mm]')
+    expect(classes).toHaveLength(3)
+  })
+
+  it('extracts nested element classes', () => {
+    const dom = cheerio.load('<div class="flex"><span class="text-sm"><a class="underline">link</a></span></div>')
+    const classes = extractClasses(dom)
+    expect(classes).toContain('flex')
+    expect(classes).toContain('text-sm')
+    expect(classes).toContain('underline')
+    expect(classes).toHaveLength(3)
+  })
 })
 
 describe('extractCustomStyles', () => {
