@@ -2,3 +2,4 @@ export type { ModuleOptions, RenderOptions, SendPDFOptions, ComponentProps } fro
 export type { ASize, AnySize, DebugMode, MarkerMode, PDFWrapperProps } from './components/types'
 export { PDFError } from './errors'
 export type { PDFErrorCode } from './errors'
+export { default as PDFWrapper } from './components/PDFWrapper.vue'
