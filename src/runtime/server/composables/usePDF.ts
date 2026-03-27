@@ -83,6 +83,10 @@ async function sendPDF<P extends Record<string, unknown>>(
   props?: P,
   options?: SendPDFOptions,
 ): Promise<Uint8Array> {
+  if (event.handled) {
+    throw new PDFError('RESPONSE_SENT', 'Cannot send PDF — response was already sent')
+  }
+
   const buffer = await render(component, props, options)
 
   setResponseHeaders(event, {
@@ -98,8 +102,6 @@ async function cleanup(): Promise<void> {
 }
 
 export function usePDF() {
-  ensureConfigured()
-
   return {
     render,
     sendPDF,
