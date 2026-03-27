@@ -19,7 +19,7 @@ const debugModes = computed(() => {
   return Array.isArray(props.debug) ? props.debug : [props.debug]
 })
 
-const pagedStyle = `
+const pagedStyle = computed(() => `
 @page {
   size: ${props.size};
   margin: ${props.marginTop}mm ${props.marginRight}mm ${props.marginBottom}mm ${props.marginLeft}mm;
@@ -40,7 +40,7 @@ body {
   margin: 0;
   padding: 0;
 }
-`
+`)
 </script>
 
 <template>
@@ -58,7 +58,7 @@ body {
     <template v-if="debugModes.includes('ruler')" />
   </div>
 
-  <div class="hidden custom-style">
+  <div style="display:none" class="custom-style">
     {{ pagedStyle }}
   </div>
 </template>
