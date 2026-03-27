@@ -1,7 +1,7 @@
 import type { ModuleOptions } from './runtime/types'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { addImportsDir, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
+import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 import jsesc from 'jsesc'
 
 const PACKAGE_NAME = '@sidebase/nuxt-pdf'
@@ -66,6 +66,11 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.alias['#pdf'] = resolve('./runtime/server')
       nitroConfig.alias['#pdf/components'] = resolve('./runtime/components')
     })
+
+    // --- Cleanup plugin ---
+    if (options.isCleanupEnabled) {
+      addServerPlugin(resolve('./runtime/server/plugins/cleanup'))
+    }
 
     // --- Auto-imports ---
     addImportsDir(resolve('./runtime/composables'))
