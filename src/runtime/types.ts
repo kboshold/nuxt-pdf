@@ -33,6 +33,18 @@ export interface ModuleOptions {
    * @default undefined
    */
   cssFile?: string
+
+  /**
+   * Max parallel renders per browser instance
+   * @default 5
+   */
+  maxConcurrency?: number
+
+  /**
+   * Recycle browser after N renders to prevent memory creep
+   * @default 500
+   */
+  maxRenderCount?: number
 }
 
 export interface RenderOptions {

@@ -17,6 +17,8 @@ export default defineNuxtModule<ModuleOptions>({
     usePagedJS: true,
     chromePath: undefined,
     cssFile: undefined,
+    maxConcurrency: 5,
+    maxRenderCount: 500,
   },
   setup(options, nuxt) {
     const logger = useLogger(PACKAGE_NAME)
