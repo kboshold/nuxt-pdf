@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as cheerio from 'cheerio'
 
-// Mock virtual module so css.ts can be imported
+// Mock virtual modules so css.ts can be imported
 vi.mock('#sidebase-pdf/tailwind', () => ({ tailwindCss: '' }))
+vi.mock('#sidebase-pdf/user-css', () => ({ userCss: '' }))
 
 const { extractClasses, extractCustomStyles } = await import('../../src/runtime/server/css')
 

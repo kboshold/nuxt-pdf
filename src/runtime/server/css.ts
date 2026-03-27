@@ -3,6 +3,8 @@ import * as cheerio from 'cheerio'
 import { compile } from 'tailwindcss'
 // @ts-expect-error — virtual module resolved at build time via Nitro alias
 import { tailwindCss } from '#sidebase-pdf/tailwind'
+// @ts-expect-error — virtual module resolved at build time via Nitro alias
+import { userCss } from '#sidebase-pdf/user-css'
 
 export function extractClasses(dom: CheerioAPI): string[] {
   const classes = new Set<string>()
@@ -36,17 +38,23 @@ export async function getCssForMarkup(html: string, customCss?: string): Promise
   const classes = extractClasses(dom)
   const customStyles = extractCustomStyles(dom)
 
-  const compiler = await compile(
-    `@import "tailwindcss";\n${customStyles}\n${customCss ?? ''}`,
-    {
-      base: '/',
-      loadStylesheet: async (_id: string, base: string) => ({
-        path: 'virtual:tailwindcss',
-        base,
-        content: tailwindCss as string,
-      }),
+  // Use user CSS file as base if provided, otherwise default to @import "tailwindcss"
+  const baseCss = (userCss as string) || '@import "tailwindcss";'
+  const compilationInput = `${baseCss}\n${customStyles}\n${customCss ?? ''}`
+
+  const compiler = await compile(compilationInput, {
+    base: '/',
+    loadStylesheet: async (_id: string, base: string) => ({
+      path: 'virtual:tailwindcss',
+      base,
+      content: tailwindCss as string,
+    }),
+    loadModule: async (id: string, _base: string) => {
+      // Resolve @plugin directives from node_modules
+      const mod = await import(id)
+      return { path: id, base: '/', module: mod.default ?? mod }
     },
-  )
+  })
 
   return compiler.build(classes)
 }

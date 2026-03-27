@@ -1,6 +1,6 @@
 import type { ModuleOptions } from './runtime/types'
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, isAbsolute, join } from 'node:path'
 import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 import jsesc from 'jsesc'
 
@@ -57,12 +57,43 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const polyfill = \`${escapedContent}\`;`,
     })
 
+    // --- Virtual module: User CSS file ---
+    let userCssContent = ''
+    if (options.cssFile) {
+      // Resolve ~ alias to srcDir
+      let cssFilePath = options.cssFile
+      if (cssFilePath.startsWith('~') || cssFilePath.startsWith('@')) {
+        cssFilePath = cssFilePath.replace(/^[~@]\//, `${nuxt.options.srcDir}/`)
+      }
+      if (!isAbsolute(cssFilePath)) {
+        cssFilePath = join(nuxt.options.rootDir, cssFilePath)
+      }
+
+      if (!existsSync(cssFilePath)) {
+        throw new Error(
+          `[${PACKAGE_NAME}] CSS file not found: "${cssFilePath}" `
+          + `(configured as pdf.cssFile: "${options.cssFile}"). `
+          + `Ensure the file exists and the path is correct.`,
+        )
+      }
+
+      userCssContent = readFileSync(cssFilePath, 'utf-8')
+      logger.info(`Using custom CSS file: ${cssFilePath}`)
+    }
+
+    const { dst: userCssOutput } = addTemplate({
+      filename: join('sidebase-pdf', 'user-css.mjs'),
+      write: true,
+      getContents: () => `export const userCss = ${JSON.stringify(userCssContent)};`,
+    })
+
     // --- Nitro aliases ---
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
 
       nitroConfig.alias['#sidebase-pdf/tailwind'] = tailwindOutput
       nitroConfig.alias['#sidebase-pdf/pagedjs'] = pagedOutput
+      nitroConfig.alias['#sidebase-pdf/user-css'] = userCssOutput
       nitroConfig.alias['#pdf'] = resolve('./runtime/server')
       nitroConfig.alias['#pdf/components'] = resolve('./runtime/components')
     })

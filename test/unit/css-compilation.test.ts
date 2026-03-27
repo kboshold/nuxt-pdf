@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 
-// Mock the virtual module before importing getCssForMarkup
+// Mock virtual modules before importing getCssForMarkup
 const tailwindCss = readFileSync(require.resolve('tailwindcss/index.css'), 'utf-8')
 vi.mock('#sidebase-pdf/tailwind', () => ({
   tailwindCss,
 }))
+vi.mock('#sidebase-pdf/user-css', () => ({ userCss: '' }))
 
 const { getCssForMarkup } = await import('../../src/runtime/server/css')
 

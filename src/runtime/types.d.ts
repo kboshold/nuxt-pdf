@@ -5,3 +5,7 @@ declare module '#sidebase-pdf/tailwind' {
 declare module '#sidebase-pdf/pagedjs' {
   export const polyfill: string
 }
+
+declare module '#sidebase-pdf/user-css' {
+  export const userCss: string
+}
