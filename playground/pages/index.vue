@@ -19,6 +19,22 @@
           Basic PDF
         </a>
       </li>
+      <li>
+        <a
+          href="/api/pdf/themed"
+          target="_blank"
+        >
+          Themed PDF (custom @theme colors)
+        </a>
+      </li>
+      <li>
+        <a
+          href="/api/pdf/typography"
+          target="_blank"
+        >
+          Typography PDF (@tailwindcss/typography)
+        </a>
+      </li>
     </ul>
   </div>
 </template>
