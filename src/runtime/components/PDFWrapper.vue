@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PDFWrapperProps } from './types'
 import { computed } from 'vue'
+import FoldMarksA from './utils/FoldMarksA.vue'
+import FoldMarksB from './utils/FoldMarksB.vue'
 
 const props = withDefaults(defineProps<PDFWrapperProps>(), {
   debug: false,
@@ -47,9 +49,8 @@ body {
   <div class="text-gray-800 bg-white">
     <slot />
 
-    <!-- Fold marks (components added in P03-T03) -->
-    <template v-if="props.foldMark === 'letterA'" />
-    <template v-if="props.foldMark === 'letterB'" />
+    <FoldMarksA v-if="props.foldMark === 'letterA'" :margin-left="props.marginLeft" :margin-right="props.marginRight" />
+    <FoldMarksB v-if="props.foldMark === 'letterB'" :margin-left="props.marginLeft" :margin-right="props.marginRight" />
 
     <!-- Debug overlays (components added in P03-T05) -->
     <template v-if="debugModes.includes('margin')" />
