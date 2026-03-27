@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+// DIN 676 Form A and Form B share the same fold/punch mark positions.
+// The difference between A and B is the letter layout zones (address window height),
+// not the physical fold marks. Separate components are provided for API consistency
+// with LetterA/LetterB.
 const props = withDefaults(defineProps<{
   marginLeft?: number
   marginRight?: number
