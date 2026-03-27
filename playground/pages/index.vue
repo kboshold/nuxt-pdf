@@ -41,6 +41,11 @@
           No Paged.js (Chrome-native @page)
         </a>
       </li>
+      <li>
+        <a href="/client">
+          Client-side Download (useExportPDF)
+        </a>
+      </li>
     </ul>
   </div>
 </template>
