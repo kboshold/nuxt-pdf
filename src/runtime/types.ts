@@ -1,4 +1,5 @@
 import type { Component, VNodeProps } from 'vue'
+import type { PDFOptions } from 'puppeteer-core'
 
 export interface ModuleOptions {
   /**
@@ -32,6 +33,24 @@ export interface ModuleOptions {
    * @default undefined
    */
   cssFile?: string
+}
+
+export interface RenderOptions {
+  /** Override module-level paged.js setting per render */
+  usePagedJS?: boolean
+  /** Override Puppeteer page.pdf() options */
+  pdfOptions?: PDFOptions
+  /** Custom selector to wait for before PDF capture */
+  waitForSelector?: string
+  /** Render timeout in ms */
+  timeout?: number
+}
+
+export interface SendPDFOptions extends RenderOptions {
+  /** Download filename */
+  filename?: string
+  /** Content-Disposition type */
+  disposition?: 'inline' | 'attachment'
 }
 
 /**

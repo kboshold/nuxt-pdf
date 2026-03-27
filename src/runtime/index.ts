@@ -1,2 +1,4 @@
-// Public component exports — components will be added in Phase 3
-export {}
+export type { ModuleOptions, RenderOptions, SendPDFOptions, ComponentProps } from './types'
+export type { ASize, AnySize, DebugMode, MarkerMode, PDFWrapperProps } from './components/types'
+export { PDFError } from './errors'
+export type { PDFErrorCode } from './errors'
