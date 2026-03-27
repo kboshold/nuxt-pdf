@@ -7,17 +7,15 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
     },
     "./components": {
       "types": "./dist/runtime/index.d.ts",
-      "import": "./dist/runtime/index.mjs"
+      "import": "./dist/runtime/index.js"
     }
   },
-  "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
+  "main": "./dist/module.mjs",
   "files": [
     "dist"
   ],
