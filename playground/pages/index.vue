@@ -36,6 +36,11 @@
           Debug Overlays (ruler + margin)
         </a>
       </li>
+      <li>
+        <a href="/api/pdf/no-pagedjs" target="_blank">
+          No Paged.js (Chrome-native @page)
+        </a>
+      </li>
     </ul>
   </div>
 </template>
