@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
 import { renderComponent } from '../../src/runtime/server/render'
 import { assembleDocument } from '../../src/runtime/server/html'
-import { defineComponent, h } from 'vue'
 
 const SimpleComponent = defineComponent({
   props: { title: { type: String, default: 'Hello' } },
@@ -36,18 +36,32 @@ describe('assembleDocument', () => {
   })
 })
 
-// Full render-to-PDF integration test — requires Chrome
-describe.skip('render() produces valid PDF', () => {
-  // NOTE: Skipped — requires Chrome/Chromium available in the environment.
-  // To run: set SIDEBASE_PDF_CHROME_PATH or install `puppeteer` package.
-  it('produces a Uint8Array starting with %PDF-', async () => {
-    // This would test the full pipeline:
-    // const { usePDF } = await import('../../src/runtime/server/composables/usePDF')
+// Full render-to-PDF integration tests — require Chrome + Nitro context.
+// To run: set SIDEBASE_PDF_CHROME_PATH or install `puppeteer` package,
+// then run with a Nuxt test context that provides runtimeConfig and virtual modules.
+describe.skip('render() full pipeline (requires Chrome)', () => {
+  // afterAll: cleanup browser to prevent zombie processes
+
+  it('produces a Uint8Array starting with %PDF- magic bytes', () => {
     // const { render, cleanup } = usePDF()
-    // const pdf = await render(SimpleComponent, { title: 'Integration Test' })
+    // const pdf = await render(SimpleComponent, { title: 'Test' })
     // expect(pdf).toBeInstanceOf(Uint8Array)
+    // expect(pdf.length).toBeGreaterThan(0)
     // const header = new TextDecoder().decode(pdf.slice(0, 5))
     // expect(header).toBe('%PDF-')
+    // await cleanup()
+  })
+
+  it('concurrent renders do not interfere', () => {
+    // const { render, cleanup } = usePDF()
+    // const [pdf1, pdf2, pdf3] = await Promise.all([
+    //   render(SimpleComponent, { title: 'Doc 1' }),
+    //   render(SimpleComponent, { title: 'Doc 2' }),
+    //   render(SimpleComponent, { title: 'Doc 3' }),
+    // ])
+    // expect(pdf1.length).toBeGreaterThan(0)
+    // expect(pdf2.length).toBeGreaterThan(0)
+    // expect(pdf3.length).toBeGreaterThan(0)
     // await cleanup()
   })
 })
