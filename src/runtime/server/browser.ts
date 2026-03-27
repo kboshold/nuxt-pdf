@@ -24,7 +24,7 @@ let chromePath: string | undefined
 
 // Semaphore state
 let activeSlots = 0
-let waitQueue: Array<() => void> = []
+let waitQueue: Array<{ resolve: () => void, reject: (error: Error) => void }> = []
 
 export function configure(options: ModuleOptions): void {
   chromePath = options.chromePath
@@ -33,6 +33,11 @@ export function configure(options: ModuleOptions): void {
 }
 
 async function resolveChromePath(): Promise<string> {
+  const envPath = process.env.SIDEBASE_PDF_CHROME_PATH
+  if (envPath) {
+    return envPath
+  }
+
   if (chromePath) {
     return chromePath
   }
@@ -148,12 +153,13 @@ export async function closeBrowser(): Promise<void> {
   browser = null
   renderCount = 0
 
-  // Drain wait queue
-  for (const resolve of waitQueue) {
-    resolve()
-  }
+  // Reject pending waiters
+  const pending = waitQueue
   waitQueue = []
   activeSlots = 0
+  for (const waiter of pending) {
+    waiter.reject(new PDFError('BROWSER_CRASHED', 'Browser shutting down'))
+  }
 
   if (instance) {
     try {
@@ -171,10 +177,13 @@ function acquireSlot(): Promise<void> {
     return Promise.resolve()
   }
 
-  return new Promise<void>((resolve) => {
-    waitQueue.push(() => {
-      activeSlots++
-      resolve()
+  return new Promise<void>((resolve, reject) => {
+    waitQueue.push({
+      resolve: () => {
+        activeSlots++
+        resolve()
+      },
+      reject,
     })
   })
 }
@@ -182,7 +191,7 @@ function acquireSlot(): Promise<void> {
 function releaseSlot(): void {
   const next = waitQueue.shift()
   if (next) {
-    next()
+    next.resolve()
   }
   else {
     activeSlots--
