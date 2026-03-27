@@ -1,6 +1,6 @@
 import type { ModuleOptions } from './runtime/types'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { addImportsDir, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 import jsesc from 'jsesc'
 
@@ -30,8 +30,7 @@ export default defineNuxtModule<ModuleOptions>({
     options.chromePath = process.env.SIDEBASE_PDF_CHROME_PATH || options.chromePath
 
     // Store options in runtime config
-    nuxt.options.runtimeConfig = nuxt.options.runtimeConfig || { public: {} }
-    nuxt.options.runtimeConfig.pdf = options
+    nuxt.options.runtimeConfig.pdf = options as ModuleOptions
 
     const { resolve } = createResolver(import.meta.url)
 
@@ -46,8 +45,8 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // --- Virtual module: Paged.js polyfill ---
-    const pagedInput = require.resolve('pagedjs')
-    const pagedContent = readFileSync(join(pagedInput, '../../dist/paged.polyfill.js'), 'utf-8')
+    const pagedDir = dirname(require.resolve('pagedjs/package.json'))
+    const pagedContent = readFileSync(join(pagedDir, 'dist/paged.polyfill.js'), 'utf-8')
     const escapedContent = jsesc(pagedContent, { es6: true, quotes: 'backtick' })
 
     const { dst: pagedOutput } = addTemplate({
