@@ -49,10 +49,16 @@ export async function getCssForMarkup(html: string, customCss?: string): Promise
       base,
       content: tailwindCss as string,
     }),
-    loadModule: async (id: string, _base: string) => {
-      // Resolve @plugin directives from node_modules
-      const mod = await import(id)
-      return { path: id, base: '/', module: mod.default ?? mod }
+    loadModule: async (id: string, base: string, resourceHint?: string) => {
+      try {
+        const mod = await import(id)
+        return { path: id, base, module: mod.default ?? mod }
+      }
+      catch {
+        throw new Error(
+          `Failed to load Tailwind ${resourceHint ?? 'module'} "${id}". Is it installed? Run: pnpm add ${id}`,
+        )
+      }
     },
   })
 
