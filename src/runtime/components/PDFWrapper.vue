@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { PDFWrapperProps } from './types'
 import { computed } from 'vue'
+import LetterFormA from './debug/LetterFormA.vue'
+import LetterFormB from './debug/LetterFormB.vue'
+import Margin from './debug/Margin.vue'
+import Ruler from './debug/Ruler.vue'
 import FoldMarksA from './utils/FoldMarksA.vue'
 import FoldMarksB from './utils/FoldMarksB.vue'
 
@@ -52,11 +56,28 @@ body {
     <FoldMarksA v-if="props.foldMark === 'letterA'" :margin-left="props.marginLeft" :margin-right="props.marginRight" />
     <FoldMarksB v-if="props.foldMark === 'letterB'" :margin-left="props.marginLeft" :margin-right="props.marginRight" />
 
-    <!-- Debug overlays (components added in P03-T05) -->
-    <template v-if="debugModes.includes('margin')" />
-    <template v-if="debugModes.includes('letterA')" />
-    <template v-if="debugModes.includes('letterB')" />
-    <template v-if="debugModes.includes('ruler')" />
+    <Margin
+      v-if="debugModes.includes('margin')"
+      :margin-top="props.marginTop"
+      :margin-right="props.marginRight"
+      :margin-bottom="props.marginBottom"
+      :margin-left="props.marginLeft"
+    />
+    <LetterFormA
+      v-if="debugModes.includes('letterA')"
+      :margin-top="props.marginTop"
+      :margin-right="props.marginRight"
+      :margin-bottom="props.marginBottom"
+      :margin-left="props.marginLeft"
+    />
+    <LetterFormB
+      v-if="debugModes.includes('letterB')"
+      :margin-top="props.marginTop"
+      :margin-right="props.marginRight"
+      :margin-bottom="props.marginBottom"
+      :margin-left="props.marginLeft"
+    />
+    <Ruler v-if="debugModes.includes('ruler')" />
   </div>
 
   <div style="display:none" class="custom-style">
