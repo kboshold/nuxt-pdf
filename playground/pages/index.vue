@@ -2,6 +2,7 @@
 const route = useRoute()
 const router = useRouter()
 const { getExample } = useExamples()
+const { pdfData, loading, error, renderTimeMs, sizeBytes, pageCount, fetchPdf, onPdfLoaded } = usePdfPreview()
 
 const selectedId = computed({
   get: () => {
@@ -18,6 +19,13 @@ const selectedExample = computed(() => getExample(selectedId.value))
 function handleSelect(id: string) {
   selectedId.value = id
 }
+
+watch(selectedId, (id) => {
+  const example = getExample(id)
+  if (example) {
+    fetchPdf(example.endpoint)
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -44,14 +52,23 @@ function handleSelect(id: string) {
 
     <UDashboardPanel>
       <template #header>
-        <UDashboardNavbar :title="selectedExample?.name ?? 'Preview'" />
+        <UDashboardNavbar :title="selectedExample?.name ?? 'Preview'">
+          <template #right>
+            <PlaygroundMetrics
+              :render-time-ms="renderTimeMs"
+              :size-bytes="sizeBytes"
+              :page-count="pageCount"
+            />
+          </template>
+        </UDashboardNavbar>
       </template>
 
-      <div class="flex flex-1 items-center justify-center p-8">
-        <p class="text-lg text-muted">
-          {{ selectedExample?.description ?? 'Select an example to get started.' }}
-        </p>
-      </div>
+      <PlaygroundViewer
+        :pdf-data="pdfData"
+        :loading="loading"
+        :error="error"
+        @loaded="onPdfLoaded"
+      />
     </UDashboardPanel>
   </UDashboardGroup>
 </template>
