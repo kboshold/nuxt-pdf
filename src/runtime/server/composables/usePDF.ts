@@ -75,6 +75,9 @@ async function render<P extends Record<string, unknown>>(
     return await renderCtx.page.pdf({
       preferCSSPageSize: true,
       printBackground: true,
+      // When paged.js handles layout, it renders margins as DOM elements —
+      // Puppeteer margins must be zero to avoid double margins and clipped footers
+      ...(usePagedJS ? { margin: { top: '0', right: '0', bottom: '0', left: '0' } } : {}),
       ...options?.pdfOptions,
     })
   } finally {
