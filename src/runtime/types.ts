@@ -45,6 +45,24 @@ export interface ModuleOptions {
    * @default 500
    */
   maxRenderCount?: number
+
+  /**
+   * Controls verbosity of consola output
+   * @default 'error'
+   */
+  logLevel?: 'error' | 'info' | 'debug'
+
+  /**
+   * Pre-warmed pages kept alive in pool (0 = no pre-warming)
+   * @default 2
+   */
+  poolSize?: number
+
+  /**
+   * Destroy and recreate a page after N renders to prevent heap creep
+   * @default 50
+   */
+  maxPageRenderCount?: number
 }
 
 export interface RenderOptions {
