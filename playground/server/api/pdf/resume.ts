@@ -36,6 +36,10 @@ export default defineEventHandler(async (event) => {
     skills: ['TypeScript', 'Vue', 'Nuxt', 'React', 'Node.js', 'PostgreSQL', 'Docker', 'Kubernetes', 'AWS', 'GraphQL', 'Tailwind CSS'],
   }
   const body = event.method === 'POST' ? await readBody(event) : {}
+  // Skills comes as comma-separated string from the form
+  if (typeof body.skills === 'string') {
+    body.skills = body.skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+  }
   const props = { ...defaults, ...body }
   return sendPDFWithMetrics(event, ResumeTemplate, props, { filename: 'resume.pdf' })
 })

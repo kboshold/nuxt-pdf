@@ -238,7 +238,7 @@ const examples: ExampleDefinition[] = [
   },
   {
     id: 'book',
-    name: 'Book (400p)',
+    name: 'Book',
     description: 'Generated lorem-ipsum book',
     category: 'real-world',
     endpoint: '/api/pdf/book',
