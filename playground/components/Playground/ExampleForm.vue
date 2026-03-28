@@ -4,6 +4,7 @@ import type { FieldDefinition } from '~/composables/useExamples'
 const props = defineProps<{
   fields: FieldDefinition[]
   defaults: Record<string, unknown>
+  autoRefresh?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -68,6 +69,8 @@ function handleGenerate() {
     <UButton
       label="Generate"
       icon="i-lucide-file-output"
+      :color="props.autoRefresh ? 'neutral' : 'primary'"
+      :variant="props.autoRefresh ? 'ghost' : 'solid'"
       block
       @click="handleGenerate"
     />

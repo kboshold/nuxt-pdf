@@ -16,16 +16,73 @@ const selectedId = computed({
 
 const selectedExample = computed(() => getExample(selectedId.value))
 
+// Auto-refresh state persisted in localStorage
+const autoRefresh = ref(true)
+
+onMounted(() => {
+  const stored = localStorage.getItem('nuxt-pdf-auto-refresh')
+  if (stored !== null) {
+    autoRefresh.value = stored === 'true'
+  }
+})
+
+watch(autoRefresh, (val) => {
+  localStorage.setItem('nuxt-pdf-auto-refresh', String(val))
+})
+
+// Auto-disable for book example
+watch(selectedId, (id) => {
+  if (id === 'book') {
+    autoRefresh.value = false
+  }
+})
+
+// Form data
+const formData = ref<Record<string, unknown>>({})
+
+function handleFormUpdate(data: Record<string, unknown>) {
+  formData.value = data
+}
+
 function handleSelect(id: string) {
   selectedId.value = id
 }
 
-watch(selectedId, (id) => {
-  const example = getExample(id)
-  if (example) {
-    fetchPdf(example.endpoint)
-  }
+// Fetch on example change (immediate for initial load)
+watch(selectedId, () => {
+  triggerFetch()
 }, { immediate: true })
+
+// Debounced auto-refresh on form data change
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(formData, () => {
+  if (!autoRefresh.value || selectedId.value === 'book') {
+    return
+  }
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+  }
+  debounceTimer = setTimeout(() => {
+    triggerFetch()
+  }, 800)
+}, { deep: true })
+
+function triggerFetch() {
+  const example = selectedExample.value
+  if (!example) {
+    return
+  }
+  const hasFields = example.fields.length > 0
+  const props = hasFields && Object.keys(formData.value).length > 0
+    ? formData.value
+    : undefined
+  fetchPdf(example.endpoint, props)
+}
+
+function handleGenerate() {
+  triggerFetch()
+}
 </script>
 
 <template>
@@ -48,6 +105,36 @@ watch(selectedId, (id) => {
         :selected-id="selectedId"
         @select="handleSelect"
       />
+
+      <template v-if="selectedExample">
+        <USeparator />
+
+        <PlaygroundExampleForm
+          :fields="selectedExample.fields"
+          :defaults="selectedExample.defaults"
+          :auto-refresh="autoRefresh"
+          @update:form-data="handleFormUpdate"
+          @generate="handleGenerate"
+        />
+
+        <div class="flex items-center justify-between px-4 py-3">
+          <label
+            class="text-sm text-muted"
+            for="auto-refresh-toggle"
+          >Auto-refresh</label>
+          <USwitch
+            id="auto-refresh-toggle"
+            v-model="autoRefresh"
+          />
+        </div>
+
+        <p
+          v-if="selectedId === 'book'"
+          class="px-4 pb-3 text-xs text-amber-500"
+        >
+          Auto-refresh disabled for book example (~30-60s render).
+        </p>
+      </template>
     </UDashboardSidebar>
 
     <UDashboardPanel>
