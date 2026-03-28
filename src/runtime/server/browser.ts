@@ -1,5 +1,6 @@
-import type { Browser, BrowserContext, Page } from 'puppeteer-core'
+import type { Browser } from 'puppeteer-core'
 import type { ModuleOptions } from '../types'
+import type { PagePool } from './pool'
 import puppeteer from 'puppeteer-core'
 import { PDFError } from '../errors'
 import { getLogger } from './logger'
@@ -12,25 +13,14 @@ const CHROME_ARGS = [
   '--font-render-hinting=none',
 ] as const
 
-export interface RenderContext {
-  context: BrowserContext
-  page: Page
-}
-
 let browser: Browser | null = null
 let renderCount = 0
 let maxRenderCount = 500
-let maxConcurrency = 5
 let chromePath: string | undefined
-
-// Semaphore state
-let activeSlots = 0
-let waitQueue: Array<{ resolve: () => void, reject: (error: Error) => void }> = []
 
 export function configure(options: ModuleOptions): void {
   chromePath = options.chromePath
   maxRenderCount = options.maxRenderCount ?? 500
-  maxConcurrency = options.maxConcurrency ?? 5
 }
 
 async function resolveChromePath(): Promise<string> {
@@ -96,46 +86,22 @@ export async function getBrowser(): Promise<Browser> {
   return browser
 }
 
-export async function createRenderContext(): Promise<RenderContext> {
-  await acquireSlot()
+export async function incrementRenderCount(pool: PagePool): Promise<void> {
+  renderCount++
+  getLogger().debug('Render count incremented', { renderCount, maxRenderCount })
 
-  try {
-    const instance = await getBrowser()
-    const context = await instance.createBrowserContext()
-    const page = await context.newPage()
-    getLogger().debug('Render context created')
-    return { context, page }
-  } catch (error) {
-    releaseSlot()
-    if (error instanceof PDFError) {
-      throw error
-    }
-    throw new PDFError(
-      'BROWSER_CRASHED',
-      `Failed to create render context: ${error instanceof Error ? error.message : String(error)}`,
-      { cause: error instanceof Error ? error : undefined },
-    )
+  if (renderCount >= maxRenderCount) {
+    await recycleBrowser(pool)
   }
 }
 
-export async function closeRenderContext(ctx: RenderContext): Promise<void> {
-  try {
-    await ctx.context.close()
-  } catch {
-    // Context may already be closed if browser crashed
-  } finally {
-    releaseSlot()
-    renderCount++
-    getLogger().debug('Render context closed', { renderCount, maxRenderCount })
+export async function recycleBrowser(pool: PagePool): Promise<void> {
+  getLogger().info('Recycling browser', { renderCount, maxRenderCount })
 
-    if (renderCount >= maxRenderCount) {
-      await recycleBrowser()
-    }
-  }
-}
+  // 1. Drain pool — waits for active renders, closes idle pages
+  await pool.requestRecycle()
 
-export async function recycleBrowser(): Promise<void> {
-  getLogger().info('Recycling browser', { renderCount })
+  // 2. Close old browser
   const old = browser
   browser = null
   renderCount = 0
@@ -147,21 +113,31 @@ export async function recycleBrowser(): Promise<void> {
       // Browser may already be closed
     }
   }
+
+  // 3. Launch new browser
+  const newBrowser = await getBrowser()
+
+  // 4. Re-warm pool on new browser
+  await pool.clearRecycle(newBrowser)
+
+  getLogger().info('Browser recycle complete')
 }
 
-export async function closeBrowser(): Promise<void> {
+export async function closeBrowser(pool?: PagePool): Promise<void> {
   getLogger().info('Closing browser')
+
+  // Drain pool if available
+  if (pool) {
+    try {
+      await pool.drain()
+    } catch {
+      // Best-effort drain — continue to close browser
+    }
+  }
+
   const instance = browser
   browser = null
   renderCount = 0
-
-  // Reject pending waiters
-  const pending = waitQueue
-  waitQueue = []
-  activeSlots = 0
-  for (const waiter of pending) {
-    waiter.reject(new PDFError('BROWSER_CRASHED', 'Browser shutting down'))
-  }
 
   if (instance) {
     try {
@@ -170,34 +146,6 @@ export async function closeBrowser(): Promise<void> {
       // Best-effort cleanup
     }
   }
-}
 
-function acquireSlot(): Promise<void> {
-  if (activeSlots < maxConcurrency) {
-    activeSlots++
-    getLogger().debug('Slot acquired', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
-    return Promise.resolve()
-  }
-
-  getLogger().debug('Queued for slot', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
-  return new Promise<void>((resolve, reject) => {
-    waitQueue.push({
-      resolve: () => {
-        activeSlots++
-        getLogger().debug('Slot acquired (from queue)', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
-        resolve()
-      },
-      reject,
-    })
-  })
-}
-
-function releaseSlot(): void {
-  const next = waitQueue.shift()
-  if (next) {
-    next.resolve()
-  } else {
-    activeSlots--
-  }
-  getLogger().debug('Slot released', { activeSlots, queueDepth: waitQueue.length })
+  getLogger().info('Browser closed')
 }
