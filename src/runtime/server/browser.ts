@@ -2,6 +2,7 @@ import type { Browser, BrowserContext, Page } from 'puppeteer-core'
 import type { ModuleOptions } from '../types'
 import puppeteer from 'puppeteer-core'
 import { PDFError } from '../errors'
+import { getLogger } from './logger'
 
 const CHROME_ARGS = [
   '--no-sandbox',
@@ -48,13 +49,15 @@ async function resolveChromePath(): Promise<string> {
     // puppeteer not installed — expected
   }
 
-  throw new PDFError(
+  const error = new PDFError(
     'CHROME_NOT_FOUND',
     'Chrome not found. Options: '
     + '(a) set SIDEBASE_PDF_CHROME_PATH env var, '
     + '(b) set pdf.chromePath in nuxt.config.ts, '
     + '(c) install \'puppeteer\' package for auto-download: pnpm add -D puppeteer',
   )
+  getLogger().error(error.message)
+  throw error
 }
 
 export async function getBrowser(): Promise<Browser> {
@@ -71,6 +74,7 @@ export async function getBrowser(): Promise<Browser> {
       args: [...CHROME_ARGS],
     })
   } catch (error) {
+    getLogger().error('Failed to launch Chrome', { executablePath })
     throw new PDFError(
       'CHROME_NOT_FOUND',
       `Failed to launch Chrome at "${executablePath}": ${error instanceof Error ? error.message : String(error)}`,
@@ -83,8 +87,11 @@ export async function getBrowser(): Promise<Browser> {
 
   // Handle unexpected browser disconnect
   browser.on('disconnected', () => {
+    getLogger().error('Browser disconnected unexpectedly')
     browser = null
   })
+
+  getLogger().info('Browser launched', { executablePath })
 
   return browser
 }
@@ -96,6 +103,7 @@ export async function createRenderContext(): Promise<RenderContext> {
     const instance = await getBrowser()
     const context = await instance.createBrowserContext()
     const page = await context.newPage()
+    getLogger().debug('Render context created')
     return { context, page }
   } catch (error) {
     releaseSlot()
@@ -118,6 +126,7 @@ export async function closeRenderContext(ctx: RenderContext): Promise<void> {
   } finally {
     releaseSlot()
     renderCount++
+    getLogger().debug('Render context closed', { renderCount, maxRenderCount })
 
     if (renderCount >= maxRenderCount) {
       await recycleBrowser()
@@ -126,6 +135,7 @@ export async function closeRenderContext(ctx: RenderContext): Promise<void> {
 }
 
 export async function recycleBrowser(): Promise<void> {
+  getLogger().info('Recycling browser', { renderCount })
   const old = browser
   browser = null
   renderCount = 0
@@ -140,6 +150,7 @@ export async function recycleBrowser(): Promise<void> {
 }
 
 export async function closeBrowser(): Promise<void> {
+  getLogger().info('Closing browser')
   const instance = browser
   browser = null
   renderCount = 0
@@ -164,13 +175,16 @@ export async function closeBrowser(): Promise<void> {
 function acquireSlot(): Promise<void> {
   if (activeSlots < maxConcurrency) {
     activeSlots++
+    getLogger().debug('Slot acquired', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
     return Promise.resolve()
   }
 
+  getLogger().debug('Queued for slot', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
   return new Promise<void>((resolve, reject) => {
     waitQueue.push({
       resolve: () => {
         activeSlots++
+        getLogger().debug('Slot acquired (from queue)', { activeSlots, maxConcurrency, queueDepth: waitQueue.length })
         resolve()
       },
       reject,
@@ -185,4 +199,5 @@ function releaseSlot(): void {
   } else {
     activeSlots--
   }
+  getLogger().debug('Slot released', { activeSlots, queueDepth: waitQueue.length })
 }
