@@ -25,10 +25,6 @@ watch(() => props.fields, () => {
 watch(formData, (data) => {
   emit('update:formData', { ...data })
 }, { deep: true })
-
-function handleGenerate() {
-  emit('generate')
-}
 </script>
 
 <template>
@@ -69,6 +65,5 @@ function handleGenerate() {
         class="w-full"
       />
     </UFormField>
-
   </div>
 </template>

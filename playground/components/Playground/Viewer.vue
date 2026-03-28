@@ -57,8 +57,12 @@ const zoomOptions: { label: string, value: ZoomPreset }[] = [
 ]
 
 const zoomLabel = computed(() => {
-  if (fitWidth.value) return 'Page Width'
-  if (fitPage.value) return 'Page Fit'
+  if (fitWidth.value) {
+    return 'Page Width'
+  }
+  if (fitPage.value) {
+    return 'Page Fit'
+  }
   return `${Math.round(scale.value * 100)}%`
 })
 
@@ -68,15 +72,12 @@ function setZoom(preset: ZoomPreset) {
   if (preset === 'page-width') {
     fitWidth.value = true
     scale.value = 1
-  }
-  else if (preset === 'page-fit') {
+  } else if (preset === 'page-fit') {
     fitPage.value = true
     scale.value = 1
-  }
-  else if (preset === 'actual-size') {
+  } else if (preset === 'actual-size') {
     scale.value = 1
-  }
-  else {
+  } else {
     scale.value = preset
   }
 }
@@ -89,7 +90,7 @@ function zoomIn() {
   const next = zoomOptions
     .map(o => o.value)
     .filter((v): v is number => typeof v === 'number' && v > current)
-    .sort((a, b) => a - b)[0]
+    .toSorted((a, b) => a - b)[0]
   scale.value = next ?? Math.min(current + ZOOM_STEP, MAX_ZOOM)
 }
 
@@ -100,7 +101,7 @@ function zoomOut() {
   const prev = zoomOptions
     .map(o => o.value)
     .filter((v): v is number => typeof v === 'number' && v < current)
-    .sort((a, b) => b - a)[0]
+    .toSorted((a, b) => b - a)[0]
   scale.value = prev ?? Math.max(current - ZOOM_STEP, MIN_ZOOM)
 }
 

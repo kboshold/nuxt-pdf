@@ -21,8 +21,12 @@ const autoScale = ref(1)
 
 // Calculate scale for fit-width or fit-page based on container dimensions
 function recalculateAutoScale() {
-  if (!scrollContainer.value || !pdf.value) return
-  if (!props.fitWidth && !props.fitPage) return
+  if (!scrollContainer.value || !pdf.value) {
+    return
+  }
+  if (!props.fitWidth && !props.fitPage) {
+    return
+  }
   const container = scrollContainer.value
   const availableWidth = container.clientWidth - 32 // padding
   const availableHeight = container.clientHeight - 32
@@ -33,8 +37,7 @@ function recalculateAutoScale() {
     const viewport = page.getViewport({ scale: 1 })
     if (props.fitWidth) {
       autoScale.value = availableWidth / viewport.width
-    }
-    else if (props.fitPage) {
+    } else if (props.fitPage) {
       autoScale.value = Math.min(availableWidth / viewport.width, availableHeight / viewport.height)
     }
   })
@@ -44,7 +47,9 @@ watch([() => props.fitWidth, () => props.fitPage], () => recalculateAutoScale())
 watch(pdf, () => recalculateAutoScale())
 
 const effectiveScale = computed(() => {
-  if (props.fitWidth || props.fitPage) return autoScale.value
+  if (props.fitWidth || props.fitPage) {
+    return autoScale.value
+  }
   return props.scale
 })
 
@@ -59,7 +64,9 @@ onMounted(() => {
   recalculateAutoScale()
   if (scrollContainer.value) {
     const resizeObserver = new ResizeObserver(() => {
-      if (props.fitWidth || props.fitPage) recalculateAutoScale()
+      if (props.fitWidth || props.fitPage) {
+        recalculateAutoScale()
+      }
     })
     resizeObserver.observe(scrollContainer.value)
     onUnmounted(() => resizeObserver.disconnect())

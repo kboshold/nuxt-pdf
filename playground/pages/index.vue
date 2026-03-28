@@ -39,7 +39,7 @@ watch(selectedId, (id) => {
 
 // Form data
 const formData = ref<Record<string, unknown>>({})
-let skipFormWatch = false
+let skipFormWatch = 0
 
 function handleFormUpdate(data: Record<string, unknown>) {
   formData.value = data
@@ -53,20 +53,20 @@ function handleSelect(id: string) {
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
 // Fetch on example change (immediate for initial load)
-// Reset formData and skip the next form watcher to prevent double-fetch
+// Skip next 2 form watches: the sync {} reset + the async ExampleForm defaults emit
 watch(selectedId, () => {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
     debounceTimer = null
   }
-  skipFormWatch = true
+  skipFormWatch = 2
   formData.value = {}
   triggerFetch()
 }, { immediate: true })
 
 watch(formData, () => {
-  if (skipFormWatch) {
-    skipFormWatch = false
+  if (skipFormWatch > 0) {
+    skipFormWatch--
     return
   }
   if (!autoRefresh.value || selectedId.value === 'book') {
@@ -85,10 +85,10 @@ function triggerFetch() {
   if (!example) {
     return
   }
-  const props = Object.keys(formData.value).length > 0
+  const data = Object.keys(formData.value).length > 0
     ? formData.value
-    : undefined
-  fetchPdf(example.endpoint, props)
+    : example.defaults
+  fetchPdf(example.endpoint, data)
 }
 
 function handleGenerate() {
@@ -118,7 +118,7 @@ onMounted(() => {
       :ui="{ header: 'p-0' }"
     >
       <template #header>
-        <UDashboardNavbar v-if="!leftCollapsed" title="NuxtPDF Playground">
+        <UDashboardNavbar v-if="!leftCollapsed" title="NuxtPDF Playground" class="w-full">
           <template #right>
             <UColorModeButton />
           </template>
@@ -185,7 +185,7 @@ onMounted(() => {
       :ui="{ header: 'p-0' }"
     >
       <template #header>
-        <UDashboardNavbar title="Settings">
+        <UDashboardNavbar title="Settings" class="w-full">
           <template #right>
             <UTooltip :text="autoRefresh ? 'Auto-refresh on' : 'Auto-refresh off'">
               <UButton
