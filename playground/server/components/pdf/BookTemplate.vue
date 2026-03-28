@@ -160,9 +160,9 @@ function generateParagraph(): string {
   return sentences.join(' ')
 }
 
-// Generate ~20 pages of content per chapter (~80 paragraphs)
+// Generate ~20 pages of content per chapter (~135 paragraphs)
 function generateChapterContent(): string[] {
-  const paraCount = Math.floor(rng() * 10) + 75
+  const paraCount = Math.floor(rng() * 10) + 130
   const paragraphs = []
   for (let i = 0; i < paraCount; i++) {
     paragraphs.push(generateParagraph())

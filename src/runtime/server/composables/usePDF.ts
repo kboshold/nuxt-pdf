@@ -43,9 +43,15 @@ async function render<P extends Record<string, unknown>>(
     const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
     if (usePagedJS) {
       await renderCtx.page.addScriptTag({ content: polyfill as string })
-      await renderCtx.page.waitForSelector('.pagedjs_pages', {
-        timeout: options?.timeout ?? 30000,
-      }).catch((error: unknown) => {
+      // Wait for paged.js to fully complete rendering (not just start).
+      // Paged.js sets --pagedjs-page-count on .pagedjs_pages when done.
+      await renderCtx.page.waitForFunction(
+        () => {
+          const el = document.querySelector('.pagedjs_pages') as HTMLElement | null
+          return el?.style.getPropertyValue('--pagedjs-page-count') !== ''
+        },
+        { timeout: options?.timeout ?? 30000 },
+      ).catch((error: unknown) => {
         throw new PDFError(
           'RENDER_TIMEOUT',
           `Paged.js did not finish within ${options?.timeout ?? 30000}ms`,
