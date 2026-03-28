@@ -43,19 +43,30 @@ export default defineEventHandler(async (event) => {
   if (typeof body.experience === 'string') {
     body.experience = body.experience.split('\n').filter(Boolean).map((line: string) => {
       // Parse "Role at Company (period)" format
-      const match = line.match(/^(.+?)\s+at\s+(.+?)(?:\s*\((.+?)\))?$/)
-      return match
-        ? { role: match[1], company: match[2], period: match[3] || '' }
-        : { role: line, company: '', period: '' }
+      const atIdx = line.indexOf(' at ')
+      if (atIdx === -1) {
+        return { role: line, company: '', period: '' }
+      }
+      const role = line.slice(0, atIdx)
+      const rest = line.slice(atIdx + 4)
+      const parenIdx = rest.lastIndexOf('(')
+      if (parenIdx === -1) {
+        return { role, company: rest.trim(), period: '' }
+      }
+      return { role, company: rest.slice(0, parenIdx).trim(), period: rest.slice(parenIdx + 1, -1).trim() }
     })
   }
   if (typeof body.education === 'string') {
     body.education = body.education.split('\n').filter(Boolean).map((line: string) => {
       // Parse "Degree, Institution (year)" or "Degree, Institution, Year"
-      const match = line.match(/^(.+?),\s*(.+?)(?:\s*\((\d{4})\)|,\s*(\d{4}))?$/)
-      return match
-        ? { degree: match[1], institution: match[2], year: match[3] || match[4] || '' }
-        : { degree: line, institution: '', year: '' }
+      const parenIdx = line.lastIndexOf('(')
+      const base = parenIdx >= 0 ? line.slice(0, parenIdx).trim() : line
+      const year = parenIdx >= 0 ? line.slice(parenIdx + 1, -1).trim() : ''
+      const commaIdx = base.indexOf(',')
+      if (commaIdx === -1) {
+        return { degree: base, institution: '', year }
+      }
+      return { degree: base.slice(0, commaIdx).trim(), institution: base.slice(commaIdx + 1).trim(), year }
     })
   }
   const props = { ...defaults, ...body }
