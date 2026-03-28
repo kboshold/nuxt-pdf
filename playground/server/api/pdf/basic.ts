@@ -1,5 +1,8 @@
 import BasicTemplate from '../../components/pdf/BasicTemplate.vue'
 
 export default defineEventHandler(async (event) => {
-  return sendPDFWithMetrics(event, BasicTemplate, { title: 'Hello NuxtPDF!' }, { filename: 'basic.pdf' })
+  const defaults = { title: 'Hello NuxtPDF!' }
+  const body = event.method === 'POST' ? await readBody(event) : {}
+  const props = { ...defaults, ...body }
+  return sendPDFWithMetrics(event, BasicTemplate, props, { filename: 'basic.pdf' })
 })
