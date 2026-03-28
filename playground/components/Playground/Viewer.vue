@@ -34,6 +34,7 @@ onUnmounted(() => {
 const scale = ref(1)
 const fitWidth = ref(true)
 const pageCount = ref(0)
+const currentPage = ref(1)
 
 const ZOOM_STEP = 0.25
 const MIN_ZOOM = 0.25
@@ -54,16 +55,41 @@ function resetZoom() {
   scale.value = 1
 }
 
+function prevPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    scrollToPage(currentPage.value)
+  }
+}
+
+function nextPage() {
+  if (currentPage.value < pageCount.value) {
+    currentPage.value++
+    scrollToPage(currentPage.value)
+  }
+}
+
+function scrollToPage(page: number) {
+  const container = document.querySelector('[data-pdf-scroll]')
+  const target = container?.querySelector(`[data-page="${page}"]`)
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 function handleLoaded(info: { pageCount: number }) {
   pageCount.value = info.pageCount
+  currentPage.value = 1
   emit('loaded', info)
+}
+
+function handlePageVisible(page: number) {
+  currentPage.value = page
 }
 
 function handleDownload() {
   if (!props.pdfData) {
     return
   }
-  const blob = new Blob([props.pdfData as BlobPart], { type: 'application/pdf' })
+  const blob = new Blob([props.pdfData], { type: 'application/pdf' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -76,6 +102,7 @@ function handleDownload() {
 watch(() => props.pdfData, () => {
   resetZoom()
   pageCount.value = 0
+  currentPage.value = 1
 })
 </script>
 
@@ -124,12 +151,14 @@ watch(() => props.pdfData, () => {
     <template v-else>
       <!-- Toolbar -->
       <div class="flex items-center justify-between border-b border-default px-4 py-2">
+        <!-- Zoom controls -->
         <div class="flex items-center gap-1">
           <UButton
             icon="i-lucide-zoom-out"
             variant="ghost"
             color="neutral"
             size="xs"
+            :disabled="!fitWidth && scale <= MIN_ZOOM"
             @click="zoomOut"
           />
           <UButton
@@ -144,15 +173,38 @@ watch(() => props.pdfData, () => {
             variant="ghost"
             color="neutral"
             size="xs"
+            :disabled="!fitWidth && scale >= MAX_ZOOM"
             @click="zoomIn"
           />
         </div>
 
-        <span
+        <!-- Page navigation -->
+        <div
           v-if="pageCount > 0"
-          class="text-xs text-muted"
-        >{{ pageCount }} {{ pageCount === 1 ? 'page' : 'pages' }}</span>
+          class="flex items-center gap-1"
+        >
+          <UButton
+            icon="i-lucide-chevron-left"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            :disabled="currentPage <= 1"
+            @click="prevPage"
+          />
+          <span class="min-w-20 text-center text-xs text-muted">
+            Page {{ currentPage }} of {{ pageCount }}
+          </span>
+          <UButton
+            icon="i-lucide-chevron-right"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            :disabled="currentPage >= pageCount"
+            @click="nextPage"
+          />
+        </div>
 
+        <!-- Download -->
         <UButton
           icon="i-lucide-download"
           variant="ghost"
@@ -169,6 +221,7 @@ watch(() => props.pdfData, () => {
           :scale="scale"
           :fit-width="fitWidth"
           @loaded="handleLoaded"
+          @page-visible="handlePageVisible"
         />
         <template #fallback>
           <div class="flex flex-1 items-center justify-center">
