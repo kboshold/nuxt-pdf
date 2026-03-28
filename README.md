@@ -57,8 +57,12 @@ defineProps<{ title: string }>()
 
 <template>
   <PDFWrapper>
-    <h1 class="text-2xl font-bold">{{ title }}</h1>
-    <p class="mt-4 text-gray-700">Your invoice content here.</p>
+    <h1 class="text-2xl font-bold">
+      {{ title }}
+    </h1>
+    <p class="mt-4 text-gray-700">
+      Your invoice content here.
+    </p>
   </PDFWrapper>
 </template>
 ```
@@ -106,14 +110,14 @@ const { render, sendPDF, cleanup } = usePDF()
 
 ```ts
 interface RenderOptions {
-  usePagedJS?: boolean    // Override module-level paged.js setting
+  usePagedJS?: boolean // Override module-level paged.js setting
   pdfOptions?: PDFOptions // Puppeteer page.pdf() options
   waitForSelector?: string
-  timeout?: number        // Default: 30000ms
+  timeout?: number // Default: 30000ms
 }
 
 interface SendPDFOptions extends RenderOptions {
-  filename?: string       // Default: 'document.pdf'
+  filename?: string // Default: 'document.pdf'
   disposition?: 'inline' | 'attachment' // Default: 'inline'
 }
 ```
@@ -131,7 +135,9 @@ const { download, isLoading, error } = useExportPDF()
   <button :disabled="isLoading" @click="download('/api/pdf/invoice', 'invoice.pdf')">
     {{ isLoading ? 'Generating...' : 'Download PDF' }}
   </button>
-  <p v-if="error">{{ error.message }}</p>
+  <p v-if="error">
+    {{ error.message }}
+  </p>
 </template>
 ```
 
@@ -223,13 +229,13 @@ export default defineNuxtConfig({
 
 ```ts
 interface ModuleOptions {
-  isEnabled?: boolean        // Default: true
+  isEnabled?: boolean // Default: true
   isCleanupEnabled?: boolean // Default: true — auto-cleanup browser on shutdown
-  chromePath?: string        // Chrome path (or SIDEBASE_PDF_CHROME_PATH env var)
-  usePagedJS?: boolean       // Default: true — enable paged.js polyfill
-  cssFile?: string           // Path to custom CSS file (e.g. '~/assets/pdf.css')
-  maxConcurrency?: number    // Default: 5 — max parallel renders
-  maxRenderCount?: number    // Default: 500 — recycle browser after N renders
+  chromePath?: string // Chrome path (or SIDEBASE_PDF_CHROME_PATH env var)
+  usePagedJS?: boolean // Default: true — enable paged.js polyfill
+  cssFile?: string // Path to custom CSS file (e.g. '~/assets/pdf.css')
+  maxConcurrency?: number // Default: 5 — max parallel renders
+  maxRenderCount?: number // Default: 500 — recycle browser after N renders
 }
 ```
 

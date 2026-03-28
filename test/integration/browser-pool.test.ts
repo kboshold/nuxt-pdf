@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { PDFError } from '../../src/runtime/errors'
 
 describe('browser pool error types', () => {
-  it('CHROME_NOT_FOUND error has actionable message', () => {
+  it('cHROME_NOT_FOUND error has actionable message', () => {
     const error = new PDFError(
       'CHROME_NOT_FOUND',
       'Chrome not found. Options: (a) set SIDEBASE_PDF_CHROME_PATH env var, (b) set pdf.chromePath in nuxt.config.ts, (c) install \'puppeteer\' package for auto-download: pnpm add -D puppeteer',
@@ -12,7 +12,7 @@ describe('browser pool error types', () => {
     expect(error.message).toContain('pnpm add -D puppeteer')
   })
 
-  it('BROWSER_CRASHED error supports cause', () => {
+  it('bROWSER_CRASHED error supports cause', () => {
     const cause = new Error('Connection closed')
     const error = new PDFError('BROWSER_CRASHED', 'Browser crashed', { cause })
     expect(error.code).toBe('BROWSER_CRASHED')

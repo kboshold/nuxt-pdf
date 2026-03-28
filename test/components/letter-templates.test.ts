@@ -13,15 +13,15 @@ function renderWithSlots(component: any, props: Record<string, any>, slots: Reco
   return renderToString(createSSRApp(wrapper))
 }
 
-describe('LetterA', () => {
+describe('letterA', () => {
   it('renders all 6 named slots', async () => {
     const html = await renderWithSlots(LetterA, {}, {
-      letterhead: () => h('div', 'LETTERHEAD_A'),
-      logo: () => h('div', 'LOGO_A'),
+      'letterhead': () => h('div', 'LETTERHEAD_A'),
+      'logo': () => h('div', 'LOGO_A'),
       'address-note': () => h('div', 'ADDR_NOTE_A'),
-      address: () => h('div', 'ADDRESS_A'),
-      reference: () => h('div', 'REFERENCE_A'),
-      content: () => h('div', 'CONTENT_A'),
+      'address': () => h('div', 'ADDRESS_A'),
+      'reference': () => h('div', 'REFERENCE_A'),
+      'content': () => h('div', 'CONTENT_A'),
     })
 
     expect(html).toContain('LETTERHEAD_A')
@@ -58,15 +58,15 @@ describe('LetterA', () => {
   })
 })
 
-describe('LetterB', () => {
+describe('letterB', () => {
   it('renders all 6 named slots', async () => {
     const html = await renderWithSlots(LetterB, {}, {
-      letterhead: () => h('div', 'LETTERHEAD_B'),
-      logo: () => h('div', 'LOGO_B'),
+      'letterhead': () => h('div', 'LETTERHEAD_B'),
+      'logo': () => h('div', 'LOGO_B'),
       'address-note': () => h('div', 'ADDR_NOTE_B'),
-      address: () => h('div', 'ADDRESS_B'),
-      reference: () => h('div', 'REFERENCE_B'),
-      content: () => h('div', 'CONTENT_B'),
+      'address': () => h('div', 'ADDRESS_B'),
+      'reference': () => h('div', 'REFERENCE_B'),
+      'content': () => h('div', 'CONTENT_B'),
     })
 
     expect(html).toContain('LETTERHEAD_B')

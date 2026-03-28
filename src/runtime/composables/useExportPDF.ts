@@ -15,11 +15,9 @@ export function useExportPDF() {
       a.download = filename ?? 'document.pdf'
       a.click()
       URL.revokeObjectURL(objectUrl)
-    }
-    catch (e) {
+    } catch (e) {
       error.value = e instanceof Error ? e : new Error(String(e))
-    }
-    finally {
+    } finally {
       isLoading.value = false
     }
   }

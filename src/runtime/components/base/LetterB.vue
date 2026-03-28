@@ -45,7 +45,7 @@ const wrapperProps = computed<PDFWrapperProps>(() => ({
         </div>
 
         <!-- Reference area -->
-        <div class="absolute min-h-[40mm] top-[5mm]" :style="`right: -10mm; width: 75mm`">
+        <div class="absolute min-h-[40mm] top-[5mm]" style="right: -10mm; width: 75mm">
           <slot name="reference" />
         </div>
       </div>

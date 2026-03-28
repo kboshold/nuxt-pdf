@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { PDFError } from '../../src/runtime/errors'
 
-describe('PDFError', () => {
+describe('pDFError', () => {
   it('has correct code and message', () => {
     const error = new PDFError('CHROME_NOT_FOUND', 'Chrome missing')
     expect(error).toBeInstanceOf(Error)

@@ -12,7 +12,7 @@ function renderWithSlots(props: Record<string, any>, slots: Record<string, () =>
   return renderToString(createSSRApp(wrapper))
 }
 
-describe('PDFWrapper SSR output', () => {
+describe('pDFWrapper SSR output', () => {
   it('renders .custom-style div with @page rule', async () => {
     const app = createSSRApp(PDFWrapper, {}, { default: () => h('div', 'content') })
     const html = await renderToString(app)
@@ -29,7 +29,7 @@ describe('PDFWrapper SSR output', () => {
     expect(html).toContain('margin: 20mm 20mm 20mm 20mm')
   })
 
-  it('A4 landscape size', async () => {
+  it('a4 landscape size', async () => {
     const app = createSSRApp(PDFWrapper, { size: 'A4 landscape' }, { default: () => h('div', 'x') })
     const html = await renderToString(app)
 
@@ -43,7 +43,7 @@ describe('PDFWrapper SSR output', () => {
     expect(html).toContain('size: 100mm 200mm')
   })
 
-  it('A3 size', async () => {
+  it('a3 size', async () => {
     const app = createSSRApp(PDFWrapper, { size: 'A3' }, { default: () => h('div', 'x') })
     const html = await renderToString(app)
 

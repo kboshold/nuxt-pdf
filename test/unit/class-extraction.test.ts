@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import * as cheerio from 'cheerio'
+import { describe, expect, it, vi } from 'vitest'
 
 // Mock virtual modules so css.ts can be imported
 vi.mock('#sidebase-pdf/tailwind', () => ({ tailwindCss: '' }))

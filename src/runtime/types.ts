@@ -1,5 +1,5 @@
-import type { Component, VNodeProps } from 'vue'
 import type { PDFOptions } from 'puppeteer-core'
+import type { Component, VNodeProps } from 'vue'
 
 export interface ModuleOptions {
   /**

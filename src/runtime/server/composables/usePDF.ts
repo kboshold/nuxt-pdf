@@ -1,5 +1,5 @@
-import type { Component } from 'vue'
 import type { H3Event } from 'h3'
+import type { Component } from 'vue'
 import type { ModuleOptions, RenderOptions, SendPDFOptions } from '../../types'
 import { useRuntimeConfig } from '#imports'
 // @ts-expect-error — virtual module resolved at build time via Nitro alias
@@ -71,8 +71,7 @@ async function render<P extends Record<string, unknown>>(
       printBackground: true,
       ...options?.pdfOptions,
     })
-  }
-  finally {
+  } finally {
     await closeRenderContext(renderCtx)
   }
 }

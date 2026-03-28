@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const tailwindCss = readFileSync(require.resolve('tailwindcss/index.css'), 'utf-8')
 
@@ -42,6 +42,7 @@ describe('@plugin support', () => {
     )
 
     await expect(getCssForMarkup('<div class="foo">test</div>'))
-      .rejects.toThrow(/pnpm add nonexistent-plugin/)
+      .rejects
+      .toThrow(/pnpm add nonexistent-plugin/)
   })
 })

@@ -23,13 +23,17 @@ defineProps<{
 
     <template #address-note>
       <div class="px-1 pt-2">
-        <p class="text-[6pt] text-gray-400">{{ company }} · Example Street 1 · 12345 City</p>
+        <p class="text-[6pt] text-gray-400">
+          {{ company }} · Example Street 1 · 12345 City
+        </p>
       </div>
     </template>
 
     <template #address>
       <div class="px-1 pt-1">
-        <p class="text-sm whitespace-pre-line">{{ recipient }}</p>
+        <p class="text-sm whitespace-pre-line">
+          {{ recipient }}
+        </p>
       </div>
     </template>
 
@@ -42,11 +46,19 @@ defineProps<{
 
     <template #content>
       <div class="space-y-4">
-        <h2 class="text-lg font-bold">{{ subject }}</h2>
-        <p class="text-sm leading-relaxed whitespace-pre-line">{{ body }}</p>
+        <h2 class="text-lg font-bold">
+          {{ subject }}
+        </h2>
+        <p class="text-sm leading-relaxed whitespace-pre-line">
+          {{ body }}
+        </p>
         <div class="mt-12">
-          <p class="text-sm text-gray-600">Best regards,</p>
-          <p class="mt-8 text-sm font-semibold">{{ company }}</p>
+          <p class="text-sm text-gray-600">
+            Best regards,
+          </p>
+          <p class="mt-8 text-sm font-semibold">
+            {{ company }}
+          </p>
         </div>
       </div>
     </template>

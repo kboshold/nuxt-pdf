@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { PDFError } from '../../src/runtime/errors'
 
 describe('sendPDF response headers', () => {
-  it('PDFError RESPONSE_SENT has correct code', () => {
+  it('pDFError RESPONSE_SENT has correct code', () => {
     const error = new PDFError('RESPONSE_SENT', 'Cannot send PDF — response was already sent')
     expect(error.code).toBe('RESPONSE_SENT')
     expect(error.message).toContain('response was already sent')

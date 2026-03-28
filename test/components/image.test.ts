@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { extname } from 'node:path'
+import { describe, expect, it } from 'vitest'
 
 // Image component uses Nitro's useStorage('assets:server') which is not
 // available outside Nitro context. We test the core logic independently:
@@ -23,7 +23,7 @@ function buildDataUri(src: string, data: Buffer): string {
   return `data:${contentType};base64,${base64Data}`
 }
 
-describe('Image MIME type detection', () => {
+describe('image MIME type detection', () => {
   it.each([
     ['photo.jpg', 'image/jpeg'],
     ['photo.jpeg', 'image/jpeg'],
@@ -46,9 +46,9 @@ describe('Image MIME type detection', () => {
   })
 })
 
-describe('Image base64 data URI assembly', () => {
+describe('image base64 data URI assembly', () => {
   it('produces valid data URI for PNG', () => {
-    const data = Buffer.from([0x89, 0x50, 0x4e, 0x47]) // PNG magic bytes
+    const data = Buffer.from([0x89, 0x50, 0x4E, 0x47]) // PNG magic bytes
     const uri = buildDataUri('test.png', data)
     expect(uri).toBe(`data:image/png;base64,${data.toString('base64')}`)
   })

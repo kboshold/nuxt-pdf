@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
-import { renderComponent } from '../../src/runtime/server/render'
 import { assembleDocument } from '../../src/runtime/server/html'
+import { renderComponent } from '../../src/runtime/server/render'
 
 const SimpleComponent = defineComponent({
   props: { title: { type: String, default: 'Hello' } },

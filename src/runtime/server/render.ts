@@ -10,8 +10,7 @@ export async function renderComponent<P extends Record<string, unknown>>(
   try {
     const app = createSSRApp(component, props)
     return await renderToString(app)
-  }
-  catch (error) {
+  } catch (error) {
     throw new PDFError(
       'SSR_FAILED',
       `Failed to render component: ${error instanceof Error ? error.message : String(error)}`,

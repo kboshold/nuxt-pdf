@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { describe, expect, it, vi } from 'vitest'
 
 // Mock virtual modules before importing getCssForMarkup
 const tailwindCss = readFileSync(require.resolve('tailwindcss/index.css'), 'utf-8')
