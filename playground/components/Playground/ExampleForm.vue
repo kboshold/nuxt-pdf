@@ -46,33 +46,29 @@ function handleGenerate() {
         v-model="formData[field.key] as string"
         :placeholder="field.placeholder"
         :rows="3"
+        class="w-full"
       />
       <UInputNumber
         v-else-if="field.type === 'number'"
         v-model="formData[field.key] as number"
         :placeholder="field.placeholder"
+        class="w-full"
       />
       <USelect
         v-else-if="field.type === 'select'"
         v-model="formData[field.key] as string"
         :items="field.options ?? []"
         :placeholder="field.placeholder"
+        class="w-full"
       />
       <UInput
         v-else
         v-model="formData[field.key] as string"
         :type="field.type === 'date' ? 'date' : 'text'"
         :placeholder="field.placeholder"
+        class="w-full"
       />
     </UFormField>
 
-    <UButton
-      label="Generate"
-      icon="i-lucide-file-output"
-      :color="props.autoRefresh ? 'neutral' : 'primary'"
-      :variant="props.autoRefresh ? 'ghost' : 'solid'"
-      block
-      @click="handleGenerate"
-    />
   </div>
 </template>

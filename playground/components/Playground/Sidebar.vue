@@ -16,6 +16,10 @@ const categories: { label: string, examples: ExampleDefinition[] }[] = [
   { label: 'Real-World Templates', examples: realWorldExamples },
 ]
 
+const openCategories = ref<Record<string, boolean>>(
+  Object.fromEntries(categories.map(c => [c.label, true])),
+)
+
 function handleSelect(id: string) {
   emit('select', id)
 }
@@ -26,20 +30,18 @@ function handleSelect(id: string) {
     <UCollapsible
       v-for="category in categories"
       :key="category.label"
-      default-open
+      v-model:open="openCategories[category.label]"
     >
-      <template #default="{ open }">
-        <button
-          class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-semibold text-muted uppercase tracking-wide hover:bg-elevated"
-        >
-          <UIcon
-            name="i-lucide-chevron-right"
-            class="size-4 shrink-0 transition-transform"
-            :class="{ 'rotate-90': open }"
-          />
-          {{ category.label }}
-        </button>
-      </template>
+      <button
+        class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-semibold text-muted uppercase tracking-wide hover:bg-elevated"
+      >
+        <UIcon
+          name="i-lucide-chevron-right"
+          class="size-4 shrink-0 transition-transform"
+          :class="{ 'rotate-90': openCategories[category.label] }"
+        />
+        {{ category.label }}
+      </button>
 
       <template #content>
         <div class="flex flex-col gap-0.5 py-1">

@@ -32,7 +32,8 @@ onUnmounted(() => {
 
 // Zoom controls
 const scale = ref(1)
-const fitWidth = ref(true)
+const fitWidth = ref(false)
+const fitPage = ref(true)
 const pageCount = ref(0)
 const currentPage = ref(1)
 
@@ -40,19 +41,67 @@ const ZOOM_STEP = 0.25
 const MIN_ZOOM = 0.25
 const MAX_ZOOM = 3
 
+type ZoomPreset = 'page-width' | 'page-fit' | 'actual-size' | number
+
+const zoomOptions: { label: string, value: ZoomPreset }[] = [
+  { label: 'Page Width', value: 'page-width' },
+  { label: 'Page Fit', value: 'page-fit' },
+  { label: 'Actual Size', value: 'actual-size' },
+  { label: '50%', value: 0.5 },
+  { label: '75%', value: 0.75 },
+  { label: '100%', value: 1 },
+  { label: '125%', value: 1.25 },
+  { label: '150%', value: 1.5 },
+  { label: '200%', value: 2 },
+  { label: '300%', value: 3 },
+]
+
+const zoomLabel = computed(() => {
+  if (fitWidth.value) return 'Page Width'
+  if (fitPage.value) return 'Page Fit'
+  return `${Math.round(scale.value * 100)}%`
+})
+
+function setZoom(preset: ZoomPreset) {
+  fitWidth.value = false
+  fitPage.value = false
+  if (preset === 'page-width') {
+    fitWidth.value = true
+    scale.value = 1
+  }
+  else if (preset === 'page-fit') {
+    fitPage.value = true
+    scale.value = 1
+  }
+  else if (preset === 'actual-size') {
+    scale.value = 1
+  }
+  else {
+    scale.value = preset
+  }
+}
+
 function zoomIn() {
   fitWidth.value = false
-  scale.value = Math.min(scale.value + ZOOM_STEP, MAX_ZOOM)
+  fitPage.value = false
+  const current = scale.value
+  // Snap to next preset percentage
+  const next = zoomOptions
+    .map(o => o.value)
+    .filter((v): v is number => typeof v === 'number' && v > current)
+    .sort((a, b) => a - b)[0]
+  scale.value = next ?? Math.min(current + ZOOM_STEP, MAX_ZOOM)
 }
 
 function zoomOut() {
   fitWidth.value = false
-  scale.value = Math.max(scale.value - ZOOM_STEP, MIN_ZOOM)
-}
-
-function resetZoom() {
-  fitWidth.value = true
-  scale.value = 1
+  fitPage.value = false
+  const current = scale.value
+  const prev = zoomOptions
+    .map(o => o.value)
+    .filter((v): v is number => typeof v === 'number' && v < current)
+    .sort((a, b) => b - a)[0]
+  scale.value = prev ?? Math.max(current - ZOOM_STEP, MIN_ZOOM)
 }
 
 function prevPage() {
@@ -102,7 +151,9 @@ function handleDownload() {
 
 // Reset zoom when PDF changes
 watch(() => props.pdfData, () => {
-  resetZoom()
+  fitWidth.value = false
+  fitPage.value = true
+  scale.value = 1
   pageCount.value = 0
   currentPage.value = 1
 })
@@ -160,22 +211,26 @@ watch(() => props.pdfData, () => {
             variant="ghost"
             color="neutral"
             size="xs"
-            :disabled="!fitWidth && scale <= MIN_ZOOM"
+            :disabled="!fitWidth && !fitPage && scale <= MIN_ZOOM"
             @click="zoomOut"
           />
-          <UButton
-            variant="ghost"
-            color="neutral"
-            size="xs"
-            :label="fitWidth ? 'Fit' : `${Math.round(scale * 100)}%`"
-            @click="resetZoom"
-          />
+          <UDropdownMenu
+            :items="zoomOptions.map(o => ({ label: o.label, onSelect: () => setZoom(o.value) }))"
+          >
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              :label="zoomLabel"
+              trailing-icon="i-lucide-chevron-down"
+            />
+          </UDropdownMenu>
           <UButton
             icon="i-lucide-zoom-in"
             variant="ghost"
             color="neutral"
             size="xs"
-            :disabled="!fitWidth && scale >= MAX_ZOOM"
+            :disabled="!fitWidth && !fitPage && scale >= MAX_ZOOM"
             @click="zoomIn"
           />
         </div>
@@ -222,6 +277,7 @@ watch(() => props.pdfData, () => {
           :pdf-data="pdfData"
           :scale="scale"
           :fit-width="fitWidth"
+          :fit-page="fitPage"
           @loaded="handleLoaded"
           @page-visible="handlePageVisible"
         />

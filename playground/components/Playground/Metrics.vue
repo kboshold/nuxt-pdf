@@ -39,11 +39,8 @@ const metrics = computed(() => [
       variant="subtle"
       color="neutral"
       size="sm"
+      :icon="metric.icon"
     >
-      <UIcon
-        :name="metric.icon"
-        class="size-3.5"
-      />
       <template v-if="metric.label">
         {{ metric.label }}
       </template>

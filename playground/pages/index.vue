@@ -94,69 +94,70 @@ function triggerFetch() {
 function handleGenerate() {
   triggerFetch()
 }
+
+// Collapse sidebars — right collapsed by default on smaller screens
+const leftCollapsed = ref(false)
+const rightCollapsed = ref(false)
+
+onMounted(() => {
+  if (window.innerWidth < 1280) {
+    rightCollapsed.value = true
+  }
+})
 </script>
 
 <template>
   <UDashboardGroup storage-key="playground-v2">
     <UDashboardSidebar
+      v-model:collapsed="leftCollapsed"
       :default-size="20"
       :min-size="15"
       :max-size="25"
       resizable
       collapsible
+      :ui="{ header: 'p-0' }"
     >
       <template #header>
-        <UDashboardNavbar title="NuxtPDF Playground">
+        <UDashboardNavbar v-if="!leftCollapsed" title="NuxtPDF Playground">
           <template #right>
             <UColorModeButton />
           </template>
         </UDashboardNavbar>
       </template>
 
-      <PlaygroundSidebar
-        :selected-id="selectedId"
-        @select="handleSelect"
-      />
-
-      <template v-if="selectedExample">
-        <USeparator />
-
-        <PlaygroundExampleForm
-          :fields="selectedExample.fields"
-          :defaults="selectedExample.defaults"
-          :auto-refresh="autoRefresh"
-          @update:form-data="handleFormUpdate"
-          @generate="handleGenerate"
+      <template #default>
+        <PlaygroundSidebar
+          v-if="!leftCollapsed"
+          :selected-id="selectedId"
+          @select="handleSelect"
         />
-
-        <div class="flex items-center justify-between px-4 py-3">
-          <label
-            class="text-sm text-muted"
-            for="auto-refresh-toggle"
-          >Auto-refresh</label>
-          <USwitch
-            id="auto-refresh-toggle"
-            v-model="autoRefresh"
-          />
-        </div>
-
-        <p
-          v-if="selectedId === 'book'"
-          class="px-4 pb-3 text-xs text-amber-500"
-        >
-          Auto-refresh disabled for book example (~30-60s render).
-        </p>
       </template>
     </UDashboardSidebar>
 
     <UDashboardPanel>
       <template #header>
         <UDashboardNavbar :title="selectedExample?.name ?? 'Preview'">
+          <template #left>
+            <UButton
+              :icon="leftCollapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="leftCollapsed = !leftCollapsed"
+            />
+          </template>
           <template #right>
             <PlaygroundMetrics
               :render-time-ms="renderTimeMs"
               :size-bytes="sizeBytes"
               :page-count="pageCount"
+            />
+            <UButton
+              :icon="rightCollapsed ? 'i-lucide-panel-right-open' : 'i-lucide-panel-right-close'"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="rightCollapsed = !rightCollapsed"
             />
           </template>
         </UDashboardNavbar>
@@ -171,5 +172,57 @@ function handleGenerate() {
         />
       </template>
     </UDashboardPanel>
+
+    <UDashboardSidebar
+      v-if="selectedExample"
+      v-model:collapsed="rightCollapsed"
+      side="right"
+      :default-size="20"
+      :min-size="15"
+      :max-size="30"
+      resizable
+      collapsible
+      :ui="{ header: 'p-0' }"
+    >
+      <template #header>
+        <UDashboardNavbar title="Settings">
+          <template #right>
+            <UTooltip :text="autoRefresh ? 'Auto-refresh on' : 'Auto-refresh off'">
+              <UButton
+                :icon="autoRefresh ? 'i-lucide-refresh-cw' : 'i-lucide-refresh-cw-off'"
+                :variant="autoRefresh ? 'soft' : 'ghost'"
+                :color="autoRefresh ? 'primary' : 'neutral'"
+                size="xs"
+                @click="autoRefresh = !autoRefresh"
+              />
+            </UTooltip>
+            <UButton
+              icon="i-lucide-play"
+              variant="soft"
+              color="primary"
+              size="xs"
+              label="Render"
+              :loading="loading"
+              @click="handleGenerate"
+            />
+          </template>
+        </UDashboardNavbar>
+      </template>
+
+      <p
+        v-if="selectedId === 'book'"
+        class="px-4 pt-3 text-xs text-amber-500"
+      >
+        Auto-refresh disabled for book (~30-60s render).
+      </p>
+
+      <PlaygroundExampleForm
+        :fields="selectedExample.fields"
+        :defaults="selectedExample.defaults"
+        :auto-refresh="autoRefresh"
+        @update:form-data="handleFormUpdate"
+        @generate="handleGenerate"
+      />
+    </UDashboardSidebar>
   </UDashboardGroup>
 </template>
