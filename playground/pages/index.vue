@@ -99,9 +99,9 @@ function handleGenerate() {
 <template>
   <UDashboardGroup>
     <UDashboardSidebar
-      :default-size="320"
-      :min-size="280"
-      :max-size="400"
+      :default-size="20"
+      :min-size="15"
+      :max-size="25"
       collapsible
     >
       <template #header>
