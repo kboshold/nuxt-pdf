@@ -16,6 +16,8 @@ export default antfu({
     '**/docs/**',
     'local.concept',
     '**/local.concept/**',
+    'local.concept_*',
+    '**/local.concept_*/**',
   ],
   stylistic: {
     indent: 2,
