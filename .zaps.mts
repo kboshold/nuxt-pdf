@@ -6,8 +6,7 @@ export function config({ defineProject }: Library) {
     services: {
       dev: {
         start: 'pnpm dev',
-        ready: { port: 3000 },
-        url: 'http://localhost:3000',
+        ready: { port: true },
       },
     },
     tasks: {

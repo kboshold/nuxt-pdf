@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
 import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
+import vue from '@vitejs/plugin-vue'
 import jsesc from 'jsesc'
 
 const _require = createRequire(import.meta.url)
@@ -90,15 +91,20 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const userCss = ${JSON.stringify(userCssContent)};`,
     })
 
-    // --- Nitro aliases ---
+    // --- Nitro config ---
     nuxt.hook('nitro:config', (nitroConfig) => {
+      // Aliases for virtual modules
       nitroConfig.alias = nitroConfig.alias || {}
-
       nitroConfig.alias['#sidebase-pdf/tailwind'] = tailwindOutput
       nitroConfig.alias['#sidebase-pdf/pagedjs'] = pagedOutput
       nitroConfig.alias['#sidebase-pdf/user-css'] = userCssOutput
       nitroConfig.alias['#pdf'] = resolve('./runtime/server')
       nitroConfig.alias['#pdf/components'] = resolve('./runtime/components')
+
+      // Enable Vue SFC imports in server routes (for PDF templates)
+      nitroConfig.rollupConfig = nitroConfig.rollupConfig || {}
+      nitroConfig.rollupConfig.plugins = nitroConfig.rollupConfig.plugins || []
+      ;(nitroConfig.rollupConfig.plugins as unknown[]).push(vue())
     })
 
     // --- Cleanup plugin ---
