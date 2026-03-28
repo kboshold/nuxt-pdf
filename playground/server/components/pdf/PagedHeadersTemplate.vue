@@ -73,25 +73,24 @@ defineProps<{ title: string, author: string }>()
         Finally, consider accessibility when adding running headers. Screen readers may not process paged media margin boxes, so ensure that all important information is also present in the main document content.
       </p>
     </div>
+    <!-- eslint-disable-next-line vue/no-useless-v-bind -->
+    <component :is="'style'">
+      @page {
+      margin: 25mm 20mm;
+      @top-center {
+      content: string(doc-title);
+      font-size: 10pt;
+      color: #4b5563;
+      }
+      @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #6b7280;
+      }
+      }
+      .doc-title {
+      string-set: doc-title content(text);
+      }
+    </component>
   </div>
 </template>
-
-<style>
-@page {
-  margin: 25mm 20mm;
-  @top-center {
-    content: string(doc-title);
-    font-size: 10pt;
-    color: #4b5563;
-  }
-  @bottom-center {
-    content: "Page " counter(page) " of " counter(pages);
-    font-size: 9pt;
-    color: #6b7280;
-  }
-}
-
-.doc-title {
-  string-set: doc-title content(text);
-}
-</style>

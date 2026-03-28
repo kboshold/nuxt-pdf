@@ -90,85 +90,62 @@ const currentDate = new Date().toLocaleDateString('en-US', {
         When designing footers for documents that may be printed double-sided, consider using <code class="rounded bg-gray-100 px-1">@page :left</code> and <code class="rounded bg-gray-100 px-1">@page :right</code> selectors to mirror the footer layout, placing page numbers on the outside edge for easier thumb navigation.
       </p>
     </div>
+
+    <!-- eslint-disable-next-line vue/no-useless-v-bind -->
+    <component :is="'style'">
+      .string-company,
+      .string-doc-id,
+      .string-date {
+      display: none;
+      }
+      .string-company { string-set: company-name content(text); }
+      .string-doc-id { string-set: doc-id content(text); }
+      .string-date { string-set: doc-date content(text); }
+      @page {
+      margin: 25mm 20mm 30mm 20mm;
+      @top-center {
+      content: string(company-name);
+      font-size: 9pt;
+      color: #6b7280;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      }
+      @bottom-left {
+      content: string(company-name) "\A" "123 Main Street, Berlin";
+      font-size: 7pt;
+      color: #9ca3af;
+      white-space: pre;
+      vertical-align: top;
+      }
+      @bottom-center {
+      content: string(doc-id) "\A" string(doc-date);
+      font-size: 7pt;
+      color: #9ca3af;
+      white-space: pre;
+      text-align: center;
+      vertical-align: top;
+      }
+      @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 7pt;
+      color: #9ca3af;
+      vertical-align: top;
+      }
+      }
+      @page :first {
+      @top-center { content: none; }
+      }
+      .cover {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      }
+      .content {
+      break-before: page;
+      padding: 0 8px;
+      }
+    </component>
   </div>
 </template>
-
-<style>
-/* Hidden string-set elements */
-.string-company,
-.string-doc-id,
-.string-date {
-  display: none;
-}
-
-.string-company {
-  string-set: company-name content(text);
-}
-
-.string-doc-id {
-  string-set: doc-id content(text);
-}
-
-.string-date {
-  string-set: doc-date content(text);
-}
-
-/* Page layout */
-@page {
-  margin: 25mm 20mm 30mm 20mm;
-
-  @top-center {
-    content: string(company-name);
-    font-size: 9pt;
-    color: #6b7280;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  @bottom-left {
-    content: string(company-name) "\A" "123 Main Street, Berlin";
-    font-size: 7pt;
-    color: #9ca3af;
-    white-space: pre;
-    vertical-align: top;
-  }
-
-  @bottom-center {
-    content: string(doc-id) "\A" string(doc-date);
-    font-size: 7pt;
-    color: #9ca3af;
-    white-space: pre;
-    text-align: center;
-    vertical-align: top;
-  }
-
-  @bottom-right {
-    content: "Page " counter(page) " of " counter(pages);
-    font-size: 7pt;
-    color: #9ca3af;
-    vertical-align: top;
-  }
-}
-
-/* First page: no running header */
-@page :first {
-  @top-center {
-    content: none;
-  }
-}
-
-/* Cover page styling */
-.cover {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  text-align: center;
-}
-
-/* Force content to start on a new page */
-.content {
-  break-before: page;
-  padding: 0 8px;
-}
-</style>

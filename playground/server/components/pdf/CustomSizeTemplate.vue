@@ -58,12 +58,13 @@ defineProps<{ labelText: string }>()
       <span>Weight: 2.5 kg</span>
       <span>30 × 20 × 15 cm</span>
     </div>
+
+    <!-- eslint-disable-next-line vue/no-useless-v-bind -->
+    <component :is="'style'">
+      .label {
+      padding: 12px 14px;
+      font-family: system-ui, sans-serif;
+      }
+    </component>
   </div>
 </template>
-
-<style>
-.label {
-  padding: 12px 14px;
-  font-family: system-ui, sans-serif;
-}
-</style>

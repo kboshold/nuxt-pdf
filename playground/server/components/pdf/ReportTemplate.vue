@@ -228,58 +228,45 @@ const sectionData = computed(() => {
         </table>
       </div>
     </div>
+
+    <!-- eslint-disable-next-line vue/no-useless-v-bind -->
+    <component :is="'style'">
+      .string-title {
+      display: none;
+      string-set: report-title content(text);
+      }
+      @page {
+      margin: 25mm 20mm 25mm 20mm;
+      @top-center {
+      content: string(report-title);
+      font-size: 8pt;
+      color: #9ca3af;
+      }
+      @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #9ca3af;
+      }
+      }
+      @page :first {
+      @top-center { content: none; }
+      @bottom-center { content: none; }
+      }
+      .cover {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      }
+      .cover-content { text-align: center; }
+      .toc {
+      break-before: page;
+      padding: 0 8px;
+      }
+      .section {
+      break-before: page;
+      padding: 0 8px;
+      }
+    </component>
   </div>
 </template>
-
-<style>
-.string-title {
-  display: none;
-  string-set: report-title content(text);
-}
-
-@page {
-  margin: 25mm 20mm 25mm 20mm;
-
-  @top-center {
-    content: string(report-title);
-    font-size: 8pt;
-    color: #9ca3af;
-  }
-
-  @bottom-center {
-    content: "Page " counter(page) " of " counter(pages);
-    font-size: 8pt;
-    color: #9ca3af;
-  }
-}
-
-@page :first {
-  @top-center {
-    content: none;
-  }
-  @bottom-center {
-    content: none;
-  }
-}
-
-.cover {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-}
-
-.cover-content {
-  text-align: center;
-}
-
-.toc {
-  break-before: page;
-  padding: 0 8px;
-}
-
-.section {
-  break-before: page;
-  padding: 0 8px;
-}
-</style>
