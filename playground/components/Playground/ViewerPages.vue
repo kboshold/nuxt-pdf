@@ -4,6 +4,8 @@ import '@tato30/vue-pdf/style.css'
 
 const props = defineProps<{
   pdfData: Uint8Array
+  scale: number
+  fitWidth: boolean
 }>()
 
 const emit = defineEmits<{
@@ -28,7 +30,8 @@ watch(pages, (count) => {
         :key="page"
         :pdf="pdf"
         :page="page"
-        fit-parent
+        :scale="fitWidth ? undefined : scale"
+        :fit-parent="fitWidth"
       />
     </div>
   </div>

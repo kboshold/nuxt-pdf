@@ -30,6 +30,35 @@ onUnmounted(() => {
   }
 })
 
+// Zoom controls
+const scale = ref(1)
+const fitWidth = ref(true)
+const pageCount = ref(0)
+
+const ZOOM_STEP = 0.25
+const MIN_ZOOM = 0.25
+const MAX_ZOOM = 3
+
+function zoomIn() {
+  fitWidth.value = false
+  scale.value = Math.min(scale.value + ZOOM_STEP, MAX_ZOOM)
+}
+
+function zoomOut() {
+  fitWidth.value = false
+  scale.value = Math.max(scale.value - ZOOM_STEP, MIN_ZOOM)
+}
+
+function resetZoom() {
+  fitWidth.value = true
+  scale.value = 1
+}
+
+function handleLoaded(info: { pageCount: number }) {
+  pageCount.value = info.pageCount
+  emit('loaded', info)
+}
+
 function handleDownload() {
   if (!props.pdfData) {
     return
@@ -42,6 +71,12 @@ function handleDownload() {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+// Reset zoom when PDF changes
+watch(() => props.pdfData, () => {
+  resetZoom()
+  pageCount.value = 0
+})
 </script>
 
 <template>
@@ -87,12 +122,42 @@ function handleDownload() {
 
     <!-- PDF viewer -->
     <template v-else>
-      <div class="flex items-center justify-end border-b border-default px-4 py-2">
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between border-b border-default px-4 py-2">
+        <div class="flex items-center gap-1">
+          <UButton
+            icon="i-lucide-zoom-out"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            @click="zoomOut"
+          />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            :label="fitWidth ? 'Fit' : `${Math.round(scale * 100)}%`"
+            @click="resetZoom"
+          />
+          <UButton
+            icon="i-lucide-zoom-in"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+            @click="zoomIn"
+          />
+        </div>
+
+        <span
+          v-if="pageCount > 0"
+          class="text-xs text-muted"
+        >{{ pageCount }} {{ pageCount === 1 ? 'page' : 'pages' }}</span>
+
         <UButton
           icon="i-lucide-download"
           variant="ghost"
           color="neutral"
-          size="sm"
+          size="xs"
           label="Download"
           @click="handleDownload"
         />
@@ -101,7 +166,9 @@ function handleDownload() {
       <ClientOnly>
         <PlaygroundViewerPages
           :pdf-data="pdfData"
-          @loaded="emit('loaded', $event)"
+          :scale="scale"
+          :fit-width="fitWidth"
+          @loaded="handleLoaded"
         />
         <template #fallback>
           <div class="flex flex-1 items-center justify-center">
