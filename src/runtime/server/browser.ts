@@ -1,4 +1,4 @@
-import type { Browser } from 'puppeteer-core'
+import type { Browser, BrowserContext, Page } from 'puppeteer-core'
 import type { ModuleOptions } from '../types'
 import type { PagePool } from './pool'
 import puppeteer from 'puppeteer-core'
@@ -148,4 +148,28 @@ export async function closeBrowser(pool?: PagePool): Promise<void> {
   }
 
   getLogger().info('Browser closed')
+}
+
+// --- Temporary shims: removed in P03-T03 when usePDF.ts switches to pool ---
+
+export interface RenderContext {
+  context: BrowserContext
+  page: Page
+}
+
+/** @deprecated Use pool.acquire() instead — will be removed in P03-T03 */
+export async function createRenderContext(): Promise<RenderContext> {
+  const instance = await getBrowser()
+  const context = await instance.createBrowserContext()
+  const page = await context.newPage()
+  return { context, page }
+}
+
+/** @deprecated Use pool.release() instead — will be removed in P03-T03 */
+export async function closeRenderContext(ctx: RenderContext): Promise<void> {
+  try {
+    await ctx.context.close()
+  } catch {
+    // Context may already be closed if browser crashed
+  }
 }
