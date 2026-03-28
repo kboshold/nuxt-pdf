@@ -1,9 +1,11 @@
 import type { ModuleOptions } from './runtime/types'
 import { existsSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
 import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
 import jsesc from 'jsesc'
 
+const _require = createRequire(import.meta.url)
 const PACKAGE_NAME = '@sidebase/nuxt-pdf'
 
 export default defineNuxtModule<ModuleOptions>({
@@ -32,12 +34,12 @@ export default defineNuxtModule<ModuleOptions>({
     options.chromePath = process.env.SIDEBASE_PDF_CHROME_PATH || options.chromePath
 
     // Store options in runtime config
-    nuxt.options.runtimeConfig.pdf = options as ModuleOptions
+    nuxt.options.runtimeConfig.pdf = options as Required<ModuleOptions>
 
     const { resolve } = createResolver(import.meta.url)
 
     // --- Virtual module: Tailwind CSS ---
-    const tailwindInput = require.resolve('tailwindcss/index.css')
+    const tailwindInput = _require.resolve('tailwindcss/index.css')
     const tailwindContent = readFileSync(tailwindInput, 'utf-8')
 
     const { dst: tailwindOutput } = addTemplate({
@@ -47,8 +49,9 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // --- Virtual module: Paged.js polyfill ---
-    const pagedDir = dirname(require.resolve('pagedjs/package.json'))
-    const pagedContent = readFileSync(join(pagedDir, 'dist/paged.polyfill.js'), 'utf-8')
+    const pagedPkgPath = _require.resolve('pagedjs')
+    const pagedDir = dirname(dirname(pagedPkgPath))
+    const pagedContent = readFileSync(join(pagedDir, 'dist', 'paged.polyfill.js'), 'utf-8')
     const escapedContent = jsesc(pagedContent, { es6: true, quotes: 'backtick' })
 
     const { dst: pagedOutput } = addTemplate({
@@ -121,9 +124,4 @@ export type { ModuleOptions }
 
 export interface ModulePublicRuntimeConfig {
   pdf: ModuleOptions
-}
-
-declare module '@nuxt/schema' {
-  interface NuxtConfig { pdf?: ModuleOptions }
-  interface NuxtOptions { pdf?: ModuleOptions }
 }

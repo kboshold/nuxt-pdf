@@ -29,6 +29,7 @@
     "release": "pnpm run lint && pnpm run prepack && changelogen --release --push && pnpm publish && git push --follow-tags",
     "lint": "oxlint -c .oxlintrc.json --deny-warnings && eslint --max-warnings 0 .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "nuxi typecheck playground",
     "test": "vitest"
   },
   "dependencies": {
