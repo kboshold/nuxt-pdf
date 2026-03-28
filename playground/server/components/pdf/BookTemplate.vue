@@ -160,9 +160,9 @@ function generateParagraph(): string {
   return sentences.join(' ')
 }
 
-// Generate ~20 pages of content per chapter (~30 paragraphs)
+// Generate ~20 pages of content per chapter (~80 paragraphs)
 function generateChapterContent(): string[] {
-  const paraCount = Math.floor(rng() * 6) + 28
+  const paraCount = Math.floor(rng() * 10) + 75
   const paragraphs = []
   for (let i = 0; i < paraCount; i++) {
     paragraphs.push(generateParagraph())
@@ -277,60 +277,19 @@ const chapters = computed(() => {
 
     <!-- eslint-disable-next-line vue/no-useless-v-bind -->
     <component :is="'style'">
-      .string-book-title {
-      display: none;
-      string-set: book-title content(text);
-      }
-      .string-chapter-title {
-      string-set: chapter-title content(text);
-      }
-      @page {
-      margin: 20mm 18mm 22mm 18mm;
-      size: A4;
-      @top-left {
-      content: string(chapter-title);
-      font-size: 8pt;
-      color: #9ca3af;
-      font-style: italic;
-      }
-      @top-right {
-      content: string(book-title);
-      font-size: 8pt;
-      color: #9ca3af;
-      }
-      @bottom-center {
-      content: counter(page);
-      font-size: 8pt;
-      color: #9ca3af;
-      }
-      }
-      @page :first {
-      @top-left { content: none; }
-      @top-right { content: none; }
-      @bottom-center { content: none; }
-      }
-      .title-page {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 85vh;
-      text-align: center;
-      }
+      .string-book-title { display: none; string-set: book-title content(text); }
+      .string-chapter-title { string-set: chapter-title content(text); }
+      @page { margin: 20mm 18mm 22mm 18mm; size: A4; }
+      @page { @top-left { content: string(chapter-title); font-size: 8pt; color: #9ca3af; font-style: italic; } }
+      @page { @top-right { content: string(book-title); font-size: 8pt; color: #9ca3af; } }
+      @page { @bottom-center { content: counter(page); font-size: 8pt; color: #9ca3af; } }
+      @page :first { @top-left { content: none; } @top-right { content: none; } @bottom-center { content: none; } }
+      .title-page { display: flex; align-items: center; justify-content: center; min-height: 85vh; text-align: center; }
       .toc { break-before: page; }
       .chapter { break-before: page; }
-      .chapter-title-page {
-      padding-top: 30vh;
-      text-align: center;
-      break-after: page;
-      }
+      .chapter-title-page { padding-top: 30vh; text-align: center; break-after: page; }
       .chapter-body { text-align: justify; }
-      .chapter-paragraph {
-      margin-top: 0.75em;
-      font-size: 10pt;
-      line-height: 1.6;
-      color: #374151;
-      text-indent: 1.5em;
-      }
+      .chapter-paragraph { margin-top: 0.75em; font-size: 10pt; line-height: 1.6; color: #374151; text-indent: 1.5em; }
       .chapter-paragraph:first-child { text-indent: 0; }
     </component>
   </div>
