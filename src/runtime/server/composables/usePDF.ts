@@ -6,13 +6,20 @@ import { useRuntimeConfig } from '#imports'
 import { polyfill } from '#sidebase-pdf/pagedjs'
 import { setResponseHeaders } from 'h3'
 import { PDFError } from '../../errors'
-import { closeBrowser, closeRenderContext, configure, createRenderContext } from '../browser'
+import { closeBrowser, configure } from '../browser'
 import { getCssForMarkup } from '../css'
 import { assembleDocument } from '../html'
 import { configureLogger, getLogger } from '../logger'
+import { createPagePool } from '../pool'
 import { renderComponent } from '../render'
 
 let configured = false
+let pool: ReturnType<typeof createPagePool> | undefined
+
+/** Access the pool singleton for cleanup/shutdown */
+export function getPool(): ReturnType<typeof createPagePool> | undefined {
+  return pool
+}
 
 function ensureConfigured(): ModuleOptions {
   const config = useRuntimeConfig()
@@ -21,6 +28,11 @@ function ensureConfigured(): ModuleOptions {
   if (!configured) {
     configureLogger(options.logLevel ?? 'error')
     configure(options)
+    pool = createPagePool({
+      poolSize: options.poolSize ?? 2,
+      maxConcurrency: options.maxConcurrency ?? 5,
+      maxPageRenderCount: options.maxPageRenderCount ?? 50,
+    })
     configured = true
   }
 
@@ -140,7 +152,7 @@ async function sendPDF<P extends Record<string, unknown>>(
 }
 
 async function cleanup(): Promise<void> {
-  await closeBrowser()
+  await closeBrowser(pool)
 }
 
 export function usePDF() {
