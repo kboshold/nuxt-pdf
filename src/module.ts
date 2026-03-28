@@ -48,7 +48,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // --- Virtual module: Paged.js polyfill ---
-    const pagedPkgPath = resolveModule('pagedjs', { paths: [nuxt.options.rootDir] })
+    const pagedPkgPath = resolveModule('pagedjs', { url: import.meta.url })
     const pagedDir = dirname(dirname(pagedPkgPath))
     const pagedContent = readFileSync(join(pagedDir, 'dist', 'paged.polyfill.js'), 'utf-8')
     const escapedContent = jsesc(pagedContent, { es6: true, quotes: 'backtick' })
