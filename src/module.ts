@@ -1,12 +1,10 @@
 import type { ModuleOptions } from './runtime/types'
 import { existsSync, readFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
-import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, useLogger } from '@nuxt/kit'
+import { addImportsDir, addServerPlugin, addTemplate, addTypeTemplate, createResolver, defineNuxtModule, resolveModule, useLogger } from '@nuxt/kit'
 import vue from '@vitejs/plugin-vue'
 import jsesc from 'jsesc'
 
-const _require = createRequire(import.meta.url)
 const PACKAGE_NAME = '@sidebase/nuxt-pdf'
 
 export default defineNuxtModule<ModuleOptions>({
@@ -40,7 +38,7 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve } = createResolver(import.meta.url)
 
     // --- Virtual module: Tailwind CSS ---
-    const tailwindInput = _require.resolve('tailwindcss/index.css')
+    const tailwindInput = resolveModule('tailwindcss/index.css', { paths: [nuxt.options.rootDir] })
     const tailwindContent = readFileSync(tailwindInput, 'utf-8')
 
     const { dst: tailwindOutput } = addTemplate({
@@ -50,7 +48,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // --- Virtual module: Paged.js polyfill ---
-    const pagedPkgPath = _require.resolve('pagedjs')
+    const pagedPkgPath = resolveModule('pagedjs', { paths: [nuxt.options.rootDir] })
     const pagedDir = dirname(dirname(pagedPkgPath))
     const pagedContent = readFileSync(join(pagedDir, 'dist', 'paged.polyfill.js'), 'utf-8')
     const escapedContent = jsesc(pagedContent, { es6: true, quotes: 'backtick' })
