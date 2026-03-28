@@ -20,6 +20,9 @@ export default defineNuxtModule<ModuleOptions>({
     cssFile: undefined,
     maxConcurrency: 5,
     maxRenderCount: 500,
+    logLevel: 'error',
+    poolSize: 2,
+    maxPageRenderCount: 50,
   },
   setup(options, nuxt) {
     const logger = useLogger(PACKAGE_NAME)

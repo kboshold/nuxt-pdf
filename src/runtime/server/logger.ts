@@ -1,6 +1,7 @@
-import { consola, type ConsolaInstance } from 'consola'
+import type { ConsolaInstance } from 'consola'
+import { consola } from 'consola'
 
-const LOG_LEVEL_MAP = {
+export const LOG_LEVEL_MAP = {
   error: 0,
   info: 3,
   debug: 4,
