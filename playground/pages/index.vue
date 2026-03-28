@@ -1,51 +1,39 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <div style="margin: 75px">
-    <h1>
-      Welcome to
-      <a
-        href="https://sidebase.io/nuxt-pdf/getting-started"
-        target="_blank"
-      >
-        NuxtPDF!
-      </a>
-    </h1>
-    <p>Have a look at some examples of how to use our module:</p>
-    <ul>
-      <li>
-        <a href="/api/pdf/basic" target="_blank">
-          Basic PDF
-        </a>
-      </li>
-      <li>
-        <a href="/api/pdf/themed" target="_blank">
-          Themed PDF (custom @theme colors)
-        </a>
-      </li>
-      <li>
-        <a href="/api/pdf/typography" target="_blank">
-          Typography PDF (@tailwindcss/typography)
-        </a>
-      </li>
-      <li>
-        <a href="/api/pdf/letter" target="_blank">
-          DIN 676 Letter (Form B with fold marks)
-        </a>
-      </li>
-      <li>
-        <a href="/api/pdf/debug" target="_blank">
-          Debug Overlays (ruler + margin)
-        </a>
-      </li>
-      <li>
-        <a href="/api/pdf/no-pagedjs" target="_blank">
-          No Paged.js (Chrome-native @page)
-        </a>
-      </li>
-      <li>
-        <a href="/client">
-          Client-side Download (useExportPDF)
-        </a>
-      </li>
-    </ul>
-  </div>
+  <UDashboardGroup>
+    <UDashboardSidebar
+      :default-size="320"
+      :min-size="280"
+      :max-size="400"
+      collapsible
+    >
+      <template #header>
+        <UDashboardNavbar title="NuxtPDF Playground">
+          <template #right>
+            <UColorModeButton />
+          </template>
+        </UDashboardNavbar>
+      </template>
+
+      <div class="p-4">
+        <p class="text-sm text-muted">
+          Select an example from the sidebar to preview a PDF.
+        </p>
+      </div>
+    </UDashboardSidebar>
+
+    <UDashboardPanel>
+      <template #header>
+        <UDashboardNavbar title="Preview" />
+      </template>
+
+      <div class="flex flex-1 items-center justify-center p-8">
+        <p class="text-lg text-muted">
+          Select an example to get started.
+        </p>
+      </div>
+    </UDashboardPanel>
+  </UDashboardGroup>
 </template>
