@@ -1,4 +1,23 @@
 <script setup lang="ts">
+const route = useRoute()
+const router = useRouter()
+const { getExample } = useExamples()
+
+const selectedId = computed({
+  get: () => {
+    const id = route.query.example as string
+    return getExample(id) ? id : 'basic'
+  },
+  set: (id: string) => {
+    router.replace({ query: { ...route.query, example: id } })
+  },
+})
+
+const selectedExample = computed(() => getExample(selectedId.value))
+
+function handleSelect(id: string) {
+  selectedId.value = id
+}
 </script>
 
 <template>
@@ -17,21 +36,20 @@
         </UDashboardNavbar>
       </template>
 
-      <div class="p-4">
-        <p class="text-sm text-muted">
-          Select an example from the sidebar to preview a PDF.
-        </p>
-      </div>
+      <PlaygroundSidebar
+        :selected-id="selectedId"
+        @select="handleSelect"
+      />
     </UDashboardSidebar>
 
     <UDashboardPanel>
       <template #header>
-        <UDashboardNavbar title="Preview" />
+        <UDashboardNavbar :title="selectedExample?.name ?? 'Preview'" />
       </template>
 
       <div class="flex flex-1 items-center justify-center p-8">
         <p class="text-lg text-muted">
-          Select an example to get started.
+          {{ selectedExample?.description ?? 'Select an example to get started.' }}
         </p>
       </div>
     </UDashboardPanel>
