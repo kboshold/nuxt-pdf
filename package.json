@@ -20,16 +20,16 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "nuxt-module-build prepare && nuxi prepare playground",
-    "dev": "nuxi dev playground",
-    "dev:build": "nuxi build playground",
+    "prepare": "nuxt-module-build prepare && cd playground && nuxi prepare",
+    "dev": "cd playground && nuxi dev",
+    "dev:build": "cd playground && nuxi build",
     "dev:prepare": "pnpm run build --stub && pnpm run prepare",
     "build": "nuxt-module-build build",
     "prepack": "nuxt-module-build",
     "release": "pnpm run lint && pnpm run prepack && changelogen --release --push && pnpm publish && git push --follow-tags",
     "lint": "oxlint -c .oxlintrc.json --deny-warnings && eslint --max-warnings 0 .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "nuxi typecheck playground",
+    "typecheck": "cd playground && nuxi typecheck",
     "test": "vitest"
   },
   "dependencies": {
