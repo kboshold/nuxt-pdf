@@ -57,8 +57,9 @@ async function render<P extends Record<string, unknown>>(
     const css = await getCssForMarkup(html)
     const cssMs = Math.round(performance.now() - cssStart)
 
-    const doc = assembleDocument(html, css)
-    logger.debug('Document assembled', { htmlSize: doc.length })
+    const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
+    const doc = assembleDocument(html, css, usePagedJS ? polyfill as string : undefined)
+    logger.debug('Document assembled', { htmlSize: doc.length, usePagedJS })
 
     // Lazy warmup: ensure browser + pool are ready on first render
     if (!pool.stats().totalCreated) {
@@ -74,12 +75,11 @@ async function render<P extends Record<string, unknown>>(
       await page.setContent(doc, { waitUntil: 'domcontentloaded' })
 
       let pagedJsMs = 0
-      const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
       if (usePagedJS) {
         const pagedJsStart = performance.now()
-        await page.addScriptTag({ content: polyfill as string })
         // Wait for paged.js to fully complete rendering (not just start).
-        // Paged.js sets --pagedjs-page-count on .pagedjs_pages when done.
+        // Paged.js is embedded inline and auto-runs on DOMContentLoaded.
+        // It sets --pagedjs-page-count on .pagedjs_pages when done.
         await page.waitForFunction(
           () => {
             const el = document.querySelector('.pagedjs_pages') as HTMLElement | null
