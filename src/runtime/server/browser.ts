@@ -33,11 +33,6 @@ export function configure(options: ModuleOptions): void {
 }
 
 async function resolveChromePath(): Promise<string> {
-  const envPath = process.env.SIDEBASE_PDF_CHROME_PATH
-  if (envPath) {
-    return envPath
-  }
-
   if (chromePath) {
     return chromePath
   }
@@ -49,8 +44,7 @@ async function resolveChromePath(): Promise<string> {
     if (execPath) {
       return execPath
     }
-  }
-  catch {
+  } catch {
     // puppeteer not installed — expected
   }
 
@@ -76,8 +70,7 @@ export async function getBrowser(): Promise<Browser> {
       headless: true,
       args: [...CHROME_ARGS],
     })
-  }
-  catch (error) {
+  } catch (error) {
     throw new PDFError(
       'CHROME_NOT_FOUND',
       `Failed to launch Chrome at "${executablePath}": ${error instanceof Error ? error.message : String(error)}`,
@@ -104,10 +97,11 @@ export async function createRenderContext(): Promise<RenderContext> {
     const context = await instance.createBrowserContext()
     const page = await context.newPage()
     return { context, page }
-  }
-  catch (error) {
+  } catch (error) {
     releaseSlot()
-    if (error instanceof PDFError) throw error
+    if (error instanceof PDFError) {
+      throw error
+    }
     throw new PDFError(
       'BROWSER_CRASHED',
       `Failed to create render context: ${error instanceof Error ? error.message : String(error)}`,
@@ -119,11 +113,9 @@ export async function createRenderContext(): Promise<RenderContext> {
 export async function closeRenderContext(ctx: RenderContext): Promise<void> {
   try {
     await ctx.context.close()
-  }
-  catch {
+  } catch {
     // Context may already be closed if browser crashed
-  }
-  finally {
+  } finally {
     releaseSlot()
     renderCount++
 
@@ -141,8 +133,7 @@ export async function recycleBrowser(): Promise<void> {
   if (old) {
     try {
       await old.close()
-    }
-    catch {
+    } catch {
       // Browser may already be closed
     }
   }
@@ -164,8 +155,7 @@ export async function closeBrowser(): Promise<void> {
   if (instance) {
     try {
       await instance.close()
-    }
-    catch {
+    } catch {
       // Best-effort cleanup
     }
   }
@@ -192,8 +182,7 @@ function releaseSlot(): void {
   const next = waitQueue.shift()
   if (next) {
     next.resolve()
-  }
-  else {
+  } else {
     activeSlots--
   }
 }
