@@ -48,7 +48,6 @@ export function createPagePool(options: PoolOptions): PagePool {
     return new Promise<void>((resolve, reject) => {
       waitQueue.push({
         resolve: () => {
-          activeCount++
           getLogger().debug('Pool slot acquired (from queue)', { activeCount, maxConcurrency, queueDepth: waitQueue.length })
           resolve()
         },
@@ -106,8 +105,7 @@ export function createPagePool(options: PoolOptions): PagePool {
         return new Promise<Page>((resolve, reject) => {
           waitQueue.push({
             resolve: () => {
-              activeCount++
-              // Recursively try acquire logic (without semaphore — we already have a slot)
+              // Slot inherited from releaser — no increment needed
               acquireInner().then(resolve, reject)
             },
             reject,
