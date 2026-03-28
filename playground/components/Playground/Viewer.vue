@@ -89,13 +89,15 @@ function handleDownload() {
   if (!props.pdfData) {
     return
   }
-  const blob = new Blob([props.pdfData], { type: 'application/pdf' })
+  const blob = new Blob([toRaw(props.pdfData) as BlobPart], { type: 'application/pdf' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = 'document.pdf'
+  document.body.append(a)
   a.click()
-  URL.revokeObjectURL(url)
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 // Reset zoom when PDF changes

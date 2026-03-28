@@ -13,7 +13,7 @@ const emit = defineEmits<{
   pageVisible: [page: number]
 }>()
 
-const pdfSrc = computed(() => ({ data: props.pdfData }))
+const pdfSrc = computed(() => ({ data: new Uint8Array(props.pdfData) }))
 const { pdf, pages } = usePDF(pdfSrc)
 const scrollContainer = ref<HTMLElement | null>(null)
 

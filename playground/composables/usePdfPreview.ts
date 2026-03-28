@@ -1,5 +1,5 @@
 export function usePdfPreview() {
-  const pdfData = ref<Uint8Array | null>(null)
+  const pdfData = shallowRef<Uint8Array | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
   const renderTimeMs = ref<number | null>(null)
