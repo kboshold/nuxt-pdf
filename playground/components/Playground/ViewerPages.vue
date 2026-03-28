@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePDF, VuePDF } from '@tato30/vue-pdf'
-import '@tato30/vue-pdf/style'
+import '@tato30/vue-pdf/style.css'
 
 const props = defineProps<{
   pdfData: Uint8Array
