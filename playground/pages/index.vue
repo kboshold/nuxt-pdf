@@ -213,7 +213,7 @@ onMounted(() => {
         v-if="selectedId === 'book'"
         class="px-4 pt-3 text-xs text-amber-500"
       >
-        Auto-refresh disabled for book (~30-60s render).
+        Auto-refresh disabled for book example.
       </p>
 
       <PlaygroundExampleForm
