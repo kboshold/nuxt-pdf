@@ -20,7 +20,7 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "nuxt-module-build prepare && cd playground && nuxi prepare",
+    "prepare": "nuxt-module-build prepare --rootDir . && cd playground && nuxi prepare",
     "dev": "cd playground && nuxi dev",
     "dev:build": "cd playground && nuxi build",
     "dev:prepare": "pnpm run build --stub && pnpm run prepare",
