@@ -6,7 +6,7 @@ import { useRuntimeConfig } from '#imports'
 import { polyfill } from '#sidebase-pdf/pagedjs'
 import { setResponseHeaders } from 'h3'
 import { PDFError } from '../../errors'
-import { closeBrowser, closeRenderContext, configure, createRenderContext } from '../browser'
+import { closeBrowser, configure, getBrowser, incrementRenderCount } from '../browser'
 import { getCssForMarkup } from '../css'
 import { assembleDocument } from '../html'
 import { configureLogger, getLogger } from '../logger'
@@ -60,21 +60,27 @@ async function render<P extends Record<string, unknown>>(
     const doc = assembleDocument(html, css)
     logger.debug('Document assembled', { htmlSize: doc.length })
 
-    const browserStart = performance.now()
-    const renderCtx = await createRenderContext()
-    const browserMs = Math.round(performance.now() - browserStart)
+    // Lazy warmup: ensure browser + pool are ready on first render
+    if (!pool.stats().totalCreated) {
+      const browser = await getBrowser()
+      await pool.warmup(browser)
+    }
+
+    const acquireStart = performance.now()
+    const page = await pool.acquire()
+    const acquireMs = Math.round(performance.now() - acquireStart)
 
     try {
-      await renderCtx.page.setContent(doc, { waitUntil: 'domcontentloaded' })
+      await page.setContent(doc, { waitUntil: 'domcontentloaded' })
 
       let pagedJsMs = 0
       const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
       if (usePagedJS) {
         const pagedJsStart = performance.now()
-        await renderCtx.page.addScriptTag({ content: polyfill as string })
+        await page.addScriptTag({ content: polyfill as string })
         // Wait for paged.js to fully complete rendering (not just start).
         // Paged.js sets --pagedjs-page-count on .pagedjs_pages when done.
-        await renderCtx.page.waitForFunction(
+        await page.waitForFunction(
           () => {
             const el = document.querySelector('.pagedjs_pages') as HTMLElement | null
             return el?.style.getPropertyValue('--pagedjs-page-count') !== ''
@@ -91,7 +97,7 @@ async function render<P extends Record<string, unknown>>(
       }
 
       if (options?.waitForSelector) {
-        await renderCtx.page.waitForSelector(options.waitForSelector, {
+        await page.waitForSelector(options.waitForSelector, {
           timeout: options?.timeout ?? 30000,
         }).catch((error: unknown) => {
           throw new PDFError(
@@ -103,7 +109,7 @@ async function render<P extends Record<string, unknown>>(
       }
 
       const pdfStart = performance.now()
-      const pdfBuffer = await renderCtx.page.pdf({
+      const pdfBuffer = await page.pdf({
         preferCSSPageSize: true,
         printBackground: true,
         // When paged.js handles layout, it renders margins as DOM elements —
@@ -115,11 +121,13 @@ async function render<P extends Record<string, unknown>>(
 
       const totalTime = Math.round(performance.now() - totalStart)
       logger.info('Render complete', { totalTime })
-      logger.debug('Render breakdown', { ssrMs, cssMs, browserMs, pagedJsMs, pdfMs, htmlSize: doc.length, pdfSize: pdfBuffer.length })
+      logger.debug('Render breakdown', { ssrMs, cssMs, acquireMs, pagedJsMs, pdfMs, htmlSize: doc.length, pdfSize: pdfBuffer.length })
+      logger.debug('Pool stats', pool.stats())
 
       return pdfBuffer
     } finally {
-      await closeRenderContext(renderCtx)
+      await pool.release(page)
+      await incrementRenderCount(pool)
     }
   } catch (error) {
     logger.error('Render failed', { error: error instanceof Error ? error.message : String(error) })
