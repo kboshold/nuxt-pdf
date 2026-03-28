@@ -29,8 +29,8 @@ if (image) {
   const contentType = mimeTypes[ext] || 'image/jpeg'
   const base64Data = Buffer.from(image).toString('base64')
   dataUri = `data:${contentType};base64,${base64Data}`
-}
-else {
+} else {
+  // oxlint-disable-next-line eslint/no-console -- intentional warning for missing images
   console.warn(`[@sidebase/nuxt-pdf] Image not found: ${props.src}`)
 }
 </script>

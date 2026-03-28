@@ -1,10 +1,10 @@
 import type { CheerioAPI } from 'cheerio'
-import * as cheerio from 'cheerio'
-import { compile } from 'tailwindcss'
 // @ts-expect-error — virtual module resolved at build time via Nitro alias
 import { tailwindCss } from '#sidebase-pdf/tailwind'
 // @ts-expect-error — virtual module resolved at build time via Nitro alias
 import { userCss } from '#sidebase-pdf/user-css'
+import * as cheerio from 'cheerio'
+import { compile } from 'tailwindcss'
 
 export function extractClasses(dom: CheerioAPI): string[] {
   const classes = new Set<string>()
@@ -44,7 +44,7 @@ export async function getCssForMarkup(html: string, customCss?: string): Promise
 
   const compiler = await compile(compilationInput, {
     base: '/',
-    loadStylesheet: async (_id: string, base: string) => ({
+    loadStylesheet: (_id: string, base: string) => ({
       path: 'virtual:tailwindcss',
       base,
       content: tailwindCss as string,
@@ -53,8 +53,7 @@ export async function getCssForMarkup(html: string, customCss?: string): Promise
       try {
         const mod = await import(id)
         return { path: id, base, module: mod.default ?? mod }
-      }
-      catch {
+      } catch {
         throw new Error(
           `Failed to load Tailwind ${resourceHint ?? 'module'} "${id}". Is it installed? Run: pnpm add ${id}`,
         )
