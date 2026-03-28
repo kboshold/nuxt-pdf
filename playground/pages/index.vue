@@ -162,12 +162,14 @@ function handleGenerate() {
         </UDashboardNavbar>
       </template>
 
-      <PlaygroundViewer
-        :pdf-data="pdfData"
-        :loading="loading"
-        :error="error"
-        @loaded="onPdfLoaded"
-      />
+      <template #body>
+        <PlaygroundViewer
+          :pdf-data="pdfData"
+          :loading="loading"
+          :error="error"
+          @loaded="onPdfLoaded"
+        />
+      </template>
     </UDashboardPanel>
   </UDashboardGroup>
 </template>
