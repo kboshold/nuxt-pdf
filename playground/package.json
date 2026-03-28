@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@nuxt/ui": "^4.6.0",
+    "@tato30/vue-pdf": "^2.0.1",
     "nuxt": "^4.4.2"
   },
   "devDependencies": {
