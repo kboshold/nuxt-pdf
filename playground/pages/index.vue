@@ -39,6 +39,7 @@ watch(selectedId, (id) => {
 
 // Form data
 const formData = ref<Record<string, unknown>>({})
+let skipFormWatch = false
 
 function handleFormUpdate(data: Record<string, unknown>) {
   formData.value = data
@@ -48,15 +49,26 @@ function handleSelect(id: string) {
   selectedId.value = id
 }
 
-// Fetch on example change (immediate for initial load)
-watch(selectedId, () => {
-  triggerFetch()
-}, { immediate: true })
-
 // Debounced auto-refresh on form data change
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
+// Fetch on example change (immediate for initial load)
+// Reset formData and skip the next form watcher to prevent double-fetch
+watch(selectedId, () => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+    debounceTimer = null
+  }
+  skipFormWatch = true
+  formData.value = {}
+  triggerFetch()
+}, { immediate: true })
+
 watch(formData, () => {
+  if (skipFormWatch) {
+    skipFormWatch = false
+    return
+  }
   if (!autoRefresh.value || selectedId.value === 'book') {
     return
   }
@@ -73,8 +85,7 @@ function triggerFetch() {
   if (!example) {
     return
   }
-  const hasFields = example.fields.length > 0
-  const props = hasFields && Object.keys(formData.value).length > 0
+  const props = Object.keys(formData.value).length > 0
     ? formData.value
     : undefined
   fetchPdf(example.endpoint, props)

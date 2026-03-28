@@ -16,8 +16,8 @@ export function usePdfPreview() {
 
     try {
       const response = await $fetch.raw(endpoint, {
-        method: props ? 'POST' : 'GET',
-        body: props,
+        method: 'POST',
+        body: props ?? {},
         responseType: 'arrayBuffer',
       })
 
