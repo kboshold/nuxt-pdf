@@ -102,6 +102,7 @@ function handleGenerate() {
       :default-size="20"
       :min-size="15"
       :max-size="25"
+      resizable
       collapsible
     >
       <template #header>
