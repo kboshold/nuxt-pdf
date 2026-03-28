@@ -97,7 +97,7 @@ function handleGenerate() {
 </script>
 
 <template>
-  <UDashboardGroup>
+  <UDashboardGroup storage-key="playground-v2">
     <UDashboardSidebar
       :default-size="20"
       :min-size="15"
