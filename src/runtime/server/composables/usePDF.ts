@@ -9,6 +9,7 @@ import { PDFError } from '../../errors'
 import { closeBrowser, closeRenderContext, configure, createRenderContext } from '../browser'
 import { getCssForMarkup } from '../css'
 import { assembleDocument } from '../html'
+import { configureLogger, getLogger } from '../logger'
 import { renderComponent } from '../render'
 
 let configured = false
@@ -18,6 +19,7 @@ function ensureConfigured(): ModuleOptions {
   const options = (config.pdf ?? {}) as ModuleOptions
 
   if (!configured) {
+    configureLogger(options.logLevel ?? 'error')
     configure(options)
     configured = true
   }
@@ -31,57 +33,85 @@ async function render<P extends Record<string, unknown>>(
   options?: RenderOptions,
 ): Promise<Uint8Array> {
   const moduleOptions = ensureConfigured()
+  const logger = getLogger()
+  const totalStart = performance.now()
 
-  const html = await renderComponent(component, props)
-  const css = await getCssForMarkup(html)
-  const document = assembleDocument(html, css)
-
-  const renderCtx = await createRenderContext()
   try {
-    await renderCtx.page.setContent(document, { waitUntil: 'domcontentloaded' })
+    const ssrStart = performance.now()
+    const html = await renderComponent(component, props)
+    const ssrMs = Math.round(performance.now() - ssrStart)
 
-    const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
-    if (usePagedJS) {
-      await renderCtx.page.addScriptTag({ content: polyfill as string })
-      // Wait for paged.js to fully complete rendering (not just start).
-      // Paged.js sets --pagedjs-page-count on .pagedjs_pages when done.
-      await renderCtx.page.waitForFunction(
-        () => {
-          const el = document.querySelector('.pagedjs_pages') as HTMLElement | null
-          return el?.style.getPropertyValue('--pagedjs-page-count') !== ''
-        },
-        { timeout: options?.timeout ?? 30000 },
-      ).catch((error: unknown) => {
-        throw new PDFError(
-          'RENDER_TIMEOUT',
-          `Paged.js did not finish within ${options?.timeout ?? 30000}ms`,
-          { cause: error instanceof Error ? error : undefined },
-        )
+    const cssStart = performance.now()
+    const css = await getCssForMarkup(html)
+    const cssMs = Math.round(performance.now() - cssStart)
+
+    const doc = assembleDocument(html, css)
+    logger.debug('Document assembled', { htmlSize: doc.length })
+
+    const browserStart = performance.now()
+    const renderCtx = await createRenderContext()
+    const browserMs = Math.round(performance.now() - browserStart)
+
+    try {
+      await renderCtx.page.setContent(doc, { waitUntil: 'domcontentloaded' })
+
+      let pagedJsMs = 0
+      const usePagedJS = options?.usePagedJS ?? moduleOptions.usePagedJS ?? true
+      if (usePagedJS) {
+        const pagedJsStart = performance.now()
+        await renderCtx.page.addScriptTag({ content: polyfill as string })
+        // Wait for paged.js to fully complete rendering (not just start).
+        // Paged.js sets --pagedjs-page-count on .pagedjs_pages when done.
+        await renderCtx.page.waitForFunction(
+          () => {
+            const el = document.querySelector('.pagedjs_pages') as HTMLElement | null
+            return el?.style.getPropertyValue('--pagedjs-page-count') !== ''
+          },
+          { timeout: options?.timeout ?? 30000 },
+        ).catch((error: unknown) => {
+          throw new PDFError(
+            'RENDER_TIMEOUT',
+            `Paged.js did not finish within ${options?.timeout ?? 30000}ms`,
+            { cause: error instanceof Error ? error : undefined },
+          )
+        })
+        pagedJsMs = Math.round(performance.now() - pagedJsStart)
+      }
+
+      if (options?.waitForSelector) {
+        await renderCtx.page.waitForSelector(options.waitForSelector, {
+          timeout: options?.timeout ?? 30000,
+        }).catch((error: unknown) => {
+          throw new PDFError(
+            'RENDER_TIMEOUT',
+            `Selector "${options.waitForSelector}" not found within ${options?.timeout ?? 30000}ms`,
+            { cause: error instanceof Error ? error : undefined },
+          )
+        })
+      }
+
+      const pdfStart = performance.now()
+      const pdfBuffer = await renderCtx.page.pdf({
+        preferCSSPageSize: true,
+        printBackground: true,
+        // When paged.js handles layout, it renders margins as DOM elements —
+        // Puppeteer margins must be zero to avoid double margins and clipped footers
+        ...(usePagedJS ? { margin: { top: '0', right: '0', bottom: '0', left: '0' } } : {}),
+        ...options?.pdfOptions,
       })
-    }
+      const pdfMs = Math.round(performance.now() - pdfStart)
 
-    if (options?.waitForSelector) {
-      await renderCtx.page.waitForSelector(options.waitForSelector, {
-        timeout: options?.timeout ?? 30000,
-      }).catch((error: unknown) => {
-        throw new PDFError(
-          'RENDER_TIMEOUT',
-          `Selector "${options.waitForSelector}" not found within ${options?.timeout ?? 30000}ms`,
-          { cause: error instanceof Error ? error : undefined },
-        )
-      })
-    }
+      const totalTime = Math.round(performance.now() - totalStart)
+      logger.info('Render complete', { totalTime })
+      logger.debug('Render breakdown', { ssrMs, cssMs, browserMs, pagedJsMs, pdfMs, htmlSize: doc.length, pdfSize: pdfBuffer.length })
 
-    return await renderCtx.page.pdf({
-      preferCSSPageSize: true,
-      printBackground: true,
-      // When paged.js handles layout, it renders margins as DOM elements —
-      // Puppeteer margins must be zero to avoid double margins and clipped footers
-      ...(usePagedJS ? { margin: { top: '0', right: '0', bottom: '0', left: '0' } } : {}),
-      ...options?.pdfOptions,
-    })
-  } finally {
-    await closeRenderContext(renderCtx)
+      return pdfBuffer
+    } finally {
+      await closeRenderContext(renderCtx)
+    }
+  } catch (error) {
+    logger.error('Render failed', { error: error instanceof Error ? error.message : String(error) })
+    throw error
   }
 }
 

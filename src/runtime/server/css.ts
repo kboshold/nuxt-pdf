@@ -5,6 +5,7 @@ import { tailwindCss } from '#sidebase-pdf/tailwind'
 import { userCss } from '#sidebase-pdf/user-css'
 import * as cheerio from 'cheerio'
 import { compile } from 'tailwindcss'
+import { getLogger } from './logger'
 
 export function extractClasses(dom: CheerioAPI): string[] {
   const classes = new Set<string>()
@@ -34,6 +35,7 @@ export function extractCustomStyles(dom: CheerioAPI): string {
 }
 
 export async function getCssForMarkup(html: string, customCss?: string): Promise<string> {
+  const start = performance.now()
   const dom = cheerio.load(html)
   const classes = extractClasses(dom)
   const customStyles = extractCustomStyles(dom)
@@ -61,5 +63,8 @@ export async function getCssForMarkup(html: string, customCss?: string): Promise
     },
   })
 
-  return compiler.build(classes)
+  const css = compiler.build(classes)
+  const compilationTime = Math.round(performance.now() - start)
+  getLogger().debug('CSS compiled', { classCount: classes.length, compilationTime, cssSize: css.length })
+  return css
 }
