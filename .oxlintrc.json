@@ -1,0 +1,22 @@
+{
+  "env": { "browser": true },
+  "plugins": ["unicorn", "typescript", "oxc"],
+  "categories": {
+    "correctness": "deny",
+    "perf": "deny",
+    "suspicious": "deny",
+    "pedantic": "deny"
+  },
+  "rules": {
+    "unicorn/no-useless-undefined": "off",
+    "eslint/no-console": "error",
+    "max-lines-per-function": "off",
+    "max-depth": "off",
+    "max-nested-callbacks": "off",
+    "max-lines": "off",
+    "no-warning-comments": "off",
+    "no-inline-comments": "off",
+    "no-map-spread": "off",
+    "require-await": "off"
+  }
+}

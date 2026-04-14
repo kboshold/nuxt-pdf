@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  --color-test-brand: #ff6600;
+  --color-test-accent: #0066ff;
+}

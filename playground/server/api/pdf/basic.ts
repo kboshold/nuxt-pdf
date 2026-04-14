@@ -1,10 +1,8 @@
-import { createPDF, streamReturnPDF } from '#pdf'
+import BasicTemplate from '../../components/pdf/BasicTemplate.vue'
 
-export default eventHandler(async (event) => {
-  const pdf = createPDF()
-  pdf.text('Welcome to NuxtPDF!')
-
-  pdf.end()
-
-  return streamReturnPDF(event, pdf)
+export default defineEventHandler(async (event) => {
+  const defaults = { title: 'Hello NuxtPDF!' }
+  const body = event.method === 'POST' ? await readBody(event) : {}
+  const props = { ...defaults, ...body }
+  return sendPDFWithMetrics(event, BasicTemplate, props, { filename: 'basic.pdf' })
 })

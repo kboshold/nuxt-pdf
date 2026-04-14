@@ -7,43 +7,67 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    },
+    "./components": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
     }
   },
-  "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
+  "main": "./dist/module.mjs",
   "files": [
     "dist"
   ],
   "scripts": {
-    "prepare": "nuxt-module-build prepare && nuxi prepare playground",
-    "dev": "nuxi dev playground",
-    "dev:build": "nuxi build playground",
-    "dev:prepare": "npm run build --stub && npm run prepare",
+    "prepare": "nuxt-module-build prepare --rootDir . && cd playground && nuxi prepare",
+    "dev": "cd playground && nuxi dev",
+    "dev:build": "cd playground && nuxi build",
+    "dev:prepare": "pnpm run build --stub && pnpm run prepare",
     "build": "nuxt-module-build build",
     "prepack": "nuxt-module-build",
-    "release": "npm run lint && npm run prepack && changelogen --release --push && npm publish && git push --follow-tags",
-    "lint": "eslint ."
+    "release": "pnpm run lint && pnpm run prepack && changelogen --release --push && pnpm publish && git push --follow-tags",
+    "lint": "oxlint -c .oxlintrc.json --deny-warnings && eslint --max-warnings 0 .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "cd playground && nuxi typecheck",
+    "test": "vitest"
   },
   "dependencies": {
-    "@nuxt/devtools-kit": "^1.0.8",
-    "@nuxt/kit": "^3.10.1",
-    "defu": "^6.1.4",
-    "h3": "^1.10.1",
-    "jspdf": "^2.5.1",
-    "pdfkit": "^0.14.0"
+    "@nuxt/kit": "^4.4.2",
+    "cheerio": "^1.2.0",
+    "h3": "^2.0.0",
+    "jsesc": "^3.1.0",
+    "pagedjs": "^0.4.3",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "puppeteer-core": "^24.40.0"
+  },
+  "peerDependencies": {
+    "@tailwindcss/typography": ">=0.5.0",
+    "puppeteer": "^24.0.0",
+    "tailwindcss": ">=4.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@tailwindcss/typography": {
+      "optional": true
+    },
+    "puppeteer": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@nuxt/devtools": "latest",
-    "@nuxt/devtools-ui-kit": "^1.0.8",
-    "@nuxt/eslint-config": "^0.2.0",
-    "@nuxt/module-builder": "^0.5.5",
-    "@nuxt/schema": "^3.10.1",
-    "@types/node": "^20.11.16",
-    "@types/pdfkit": "^0.13.4",
-    "eslint": "^8.56.0",
-    "nuxt": "^3.10.1"
+    "@antfu/eslint-config": "^7.7.3",
+    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/schema": "^4.4.2",
+    "@nuxt/test-utils": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^25.5.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vue/test-utils": "^2.4.6",
+    "eslint": "^10.1.0",
+    "happy-dom": "^20.8.9",
+    "nuxt": "^4.4.2",
+    "oxlint": "^1.57.0",
+    "vitest": "^4.1.2",
+    "vue-tsc": "^3.2.6"
   }
 }
