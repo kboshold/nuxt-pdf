@@ -92,6 +92,17 @@ const examples: ExampleDefinition[] = [
     defaults: {},
   },
   {
+    id: 'unicode',
+    name: 'Unicode & Emojis',
+    description: 'UTF-8 proof: emojis, CJK, RTL, math, currency',
+    category: 'feature',
+    endpoint: '/api/pdf/unicode',
+    fields: [
+      { key: 'customText', label: 'Custom text', type: 'textarea', placeholder: 'Type any UTF-8 text...' },
+    ],
+    defaults: { customText: '🎉 Type your own emojis / 文字 / نص / שלום here!' },
+  },
+  {
     id: 'landscape',
     name: 'Landscape',
     description: 'Landscape A4 orientation',
